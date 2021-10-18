@@ -1,0 +1,118 @@
+ ************ Model 69 Test Results ************
+model_69_topologyENC_4_DEC_4_lr1e-06_bands18.pt
+
+
+####################################################################################################
+LOG: The Following Command-Line Parameters Have Been Adopted
+1. function = generate_error_maps
+2. epochs = 50
+3. log_after = 10
+4. bands = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+5. workers = 4
+6. summary_dir = /work/mohsin/BTT_districts_maps/output/summary/augmented/
+7. pre_model = model_69_topologyENC_4_DEC_4_lr1e-06_bands18.pt
+8. error_maps_path = /work/mohsin/BTT_districts_maps/output/error_maps
+9. batch_size = 64
+10. data_split_lists = /work/mohsin/BTT_districts_maps/output/training_lists/
+11. models_dir = /work/mohsin/BTT_districts_maps/output/models/augmented/
+12. classes = ['Non-Forest', 'Forest']
+13. lr = 1e-06
+14. cuda = 0
+15. input_dim = 128
+16. model_topology = ENC_4_DEC_4
+17. device = 0
+18. data = /work/mohsin/BTT_districts_maps/training_2015_pickled_data/
+####################################################################################################
+
+
+LOG: Using pretrained convolutional layer Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+LOG: Using pretrained convolutional layer Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+LOG: Using pretrained convolutional layer Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+LOG: Using pretrained convolutional layer Conv2d(256, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+LOG: Using pretrained convolutional layer Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+
+
+####################################################################################################
+(LOG): The following Model Topology will be Utilized: ENC_4_DEC_4
+####################################################################################################
+
+
+[LOG] Resumed model model_69_topologyENC_4_DEC_4_lr1e-06_bands18.pt successfully!
+inside dataloading code...
+LOG: [train_list, eval_list, test_list] -> 0 0 0
+LOG: set(train_list).isdisjoint(set(eval_list)) -> True
+LOG: set(train_list).isdisjoint(set(test_list)) -> True
+LOG: set(test_list).isdisjoint(set(eval_list)) -> True
+LOG: Saved data map found! Loading now...
+LOG: Saved data map found! Loading now...
+LOG: Saved data map found! Loading now...
+LOG: [train_data, eval_data, test_data] -> 237824 116 117
+LOG: Data Split Integrity: set(train_list).isdisjoint(set(eval_list)) -> True
+LOG: Data Split Integrity: set(train_list).isdisjoint(set(test_list)) -> True
+LOG: Data Split Integrity: set(test_list).isdisjoint(set(eval_list)) -> True
+[LOG] Evaluating performance on test data...
+log: on test sample: 0/2
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+log: test:: total loss = 0.08909, total accuracy = 80.20279%
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+---> Confusion Matrix:
+[[0.8980757  0.10192428]
+ [0.4613272  0.5386728 ]]
+Confusion Matrix from Scikit-Learn
+
+[[974625 110612]
+ [182591 213204]]
+
+Classification Report
+
+              precision    recall  f1-score   support
+
+  Non-Forest       0.84      0.90      0.87   1085237
+      Forest       0.66      0.54      0.59    395795
+
+   micro avg       0.80      0.80      0.80   1481032
+   macro avg       0.75      0.72      0.73   1481032
+weighted avg       0.79      0.80      0.80   1481032
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+[LOG] Per District Test Accuracies
+defaultdict(<function <lambda> at 0x7f7042351750>, {'upper dir': [115320, 168388.0], 'kohat': [59699, 70444.0], 'shangla': [40557, 53800.0], 'kohistan': [170146, 188515.0], 'hangu': [14371, 14687.0], 'battagram': [28630, 32768.0], 'karak': [145481, 171069.0], 'mansehra': [88770, 112967.0], 'haripur': [70342, 88738.0], 'swat': [172859, 206238.0], 'lower dir': [42568, 52887.0], 'nowshehra': [32107, 32768.0], 'abbottabad': [39831, 51418.0], 'buner': [62222, 78350.0], 'chitral': [88577, 138403.0], 'malakand': [16349, 19592.0]})
+1: upper dir -> 115320/168388.0 = 68.48%
+[LOG] Skipping upper dir district for performance testing
+2: kohat -> 59699/70444.0 = 84.75%
+3: shangla -> 40557/53800.0 = 75.38%
+4: kohistan -> 170146/188515.0 = 90.26%
+5: hangu -> 14371/14687.0 = 97.85%
+6: battagram -> 28630/32768.0 = 87.37%
+7: karak -> 145481/171069.0 = 85.04%
+8: mansehra -> 88770/112967.0 = 78.58%
+9: haripur -> 70342/88738.0 = 79.27%
+10: swat -> 172859/206238.0 = 83.82%
+11: lower dir -> 42568/52887.0 = 80.49%
+12: nowshehra -> 32107/32768.0 = 97.98%
+13: abbottabad -> 39831/51418.0 = 77.47%
+14: buner -> 62222/78350.0 = 79.42%
+15: chitral -> 88577/138403.0 = 64.00%
+[LOG] Skipping chitral district for performance testing
+16: malakand -> 16349/19592.0 = 83.45%
+[LOG] Net Test Accuracy Without Chitral and Upper Dir: 83.79%
+---> Confusion Matrix:
+[[0.8980757  0.10192428]
+ [0.4613272  0.5386728 ]]
+Confusion Matrix from Scikit-Learn
+
+[[865922  62034]
+ [128275 118010]]
+
+Classification Report
+
+              precision    recall  f1-score   support
+
+  Non-Forest       0.87      0.93      0.90    927956
+      Forest       0.66      0.48      0.55    246285
+
+   micro avg       0.84      0.84      0.84   1174241
+   macro avg       0.76      0.71      0.73   1174241
+weighted avg       0.83      0.84      0.83   1174241
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
