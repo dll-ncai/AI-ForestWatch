@@ -1,3 +1,4 @@
+
 # AI-ForestWatch: Semantic Segmentation based End-to-End Framework for Forest Change Detection Using Multi-spectral Remote Sensing Imagery
 
 This repository contains the dataset and code used to develop the AI-ForestWatch framework for forest change detection. 
@@ -41,5 +42,18 @@ Training is done using U-Net Topology with VGG backbone. To train the model, a s
 ## Inference
 `inference_btt_2020.py` is the script used to run inference on a given test image using the trained model.
  
- ## Reference
- Zulfiqar, A., Ghaffar, M. M., Shahzad, M., Weis, C., Malik, M. I., Shafait, F., & Wehn, N. (2021). AI-ForestWatch: semantic segmentation based end-to-end framework for forest estimation and change detection using multi-spectral remote sensing imagery. Journal of Applied Remote Sensing, 15(2), 024518.
+ ## Reference 
+
+     @article{10.1117/1.JRS.15.024518,
+    author = {Annus Zulfiqar and Muhammad M. Ghaffar and Muhammad Shahzad and Christian Weis and Muhammad I. Malik and Faisal Shafait and Norbert Wehn},
+    title = {{AI-ForestWatch: semantic segmentation based end-to-end framework for forest estimation and change detection using multi-spectral remote sensing imagery}},
+    volume = {15},
+    journal = {Journal of Applied Remote Sensing},
+    number = {2},
+    publisher = {SPIE},
+    pages = {1 -- 21},
+    keywords = {deep neural networks, semantic segmentation, multi-spectral remote sensing, multi-temporal forest change detection, Image segmentation, Earth observing sensors, Landsat, Vegetation, RGB color model, Machine learning, Computer programming, Classification systems, Remote sensing, Data modeling},
+    year = {2021},
+    doi = {10.1117/1.JRS.15.024518},
+    URL = {https://doi.org/10.1117/1.JRS.15.024518}
+    }
