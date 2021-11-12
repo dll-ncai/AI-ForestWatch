@@ -1,3 +1,9 @@
+# Copyright (c) 2021, Technische Universität Kaiserslautern (TUK) & National University of Sciences and Technology (NUST).
+# All rights reserved.
+
+# This source code is licensed under the MIT license found in the
+# LICENSE.md file in the root directory of this source tree.
+
 #!/usr/bin/env bash
 for year in `seq 2016 2017`;
 	do
