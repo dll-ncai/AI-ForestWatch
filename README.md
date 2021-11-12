@@ -41,10 +41,13 @@ Training is done using U-Net Topology with VGG backbone. To train the model, a s
 
 ## Inference
 `inference_btt_2020.py` is the script used to run inference on a given test image using the trained model.
+
+## Acknowledgements
+Part of this research is supported by the German Academic Exchange Service (DAAD) under grant no. 57402923.
  
  ## Reference 
 
-     @article{10.1117/1.JRS.15.024518,
+    @article{10.1117/1.JRS.15.024518,
     author = {Annus Zulfiqar and Muhammad M. Ghaffar and Muhammad Shahzad and Christian Weis and Muhammad I. Malik and Faisal Shafait and Norbert Wehn},
     title = {{AI-ForestWatch: semantic segmentation based end-to-end framework for forest estimation and change detection using multi-spectral remote sensing imagery}},
     volume = {15},
