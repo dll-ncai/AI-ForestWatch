@@ -13,18 +13,22 @@ from torch.utils.data import Dataset
 np.random.seed(123)
 
 class BaseDataset(Dataset):
-    def __init__(self, data_list, data_map_path, stride, mode='train', transformation=None):
+    def __init__(self, data_list, data_map_path, stride, model_input_size, bands, num_classes, one_hot,
+                 mode='train', transformation=None):
         super(dataset, self).__init__()
-        self.model_input_size = model_input_size
         self.data_list = data_list
-        self.all_images = []
-        self.total_images = 0
         self.stride = stride
-        self.one_hot = one_hot
+        self.model_input_size = model_input_size
         self.bands = [x-1 for x in bands]
         self.num_classes = num_classes
+        self.one_hot = one_hot
+        
         self.transformation = transformation
         self.mode = mode
+        
+        self.all_images = []
+        self.total_images = 0
+
         if os.path.exists(data_map_path):
             print('LOG: Saved data map found! Loading now...')
             with open(data_map_path, 'rb') as data_map:
