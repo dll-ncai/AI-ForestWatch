@@ -102,7 +102,6 @@ class UNet(BaseModel):
         print('\n\n' + "#" * 100)
         print("(LOG): The following Model Topology will be Utilized: {}".format(self.forward.__name__))
         print("#" * 100 + '\n\n')
-        pass
 
     def ENC_1_DEC_1(self, x_in):
         x1_cat = self.encoder_1(x_in)
