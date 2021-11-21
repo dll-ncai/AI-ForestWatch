@@ -7,7 +7,7 @@ random.seed(123)
 
 class Landsat8DataLoader(BaseDataLoader):
     """
-    MNIST data loading demo using BaseDataLoader
+    Dataloader for Landsat8 generated pickle data
     """
     def __init__(self, data_dir, data_split_lists_path, batch_size, model_input_size, bands, num_classes, one_hot, 
                  train_split=0.8, mode='train', num_workers=4, transforms=None):
