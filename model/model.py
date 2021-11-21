@@ -8,32 +8,16 @@
     UNet model definition in here
 """
 
-from __future__ import print_function
-from __future__ import division
 import torch
 import torch.nn as nn
 from torch.optim import *
 import torch.nn.functional as F
 from torch.nn.utils import clip_grad_norm_
-import torch.utils.model_zoo as model_zoo
-from dataset import get_dataloaders_generated_data
-import os
-import numpy as np
-import pickle as pkl
-import PIL.Image as Image
-import itertools
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-plt.switch_backend('agg')
-from torchsummary import summary
 from torchvision import models
 from base import BaseModel
 
-# for getting pretrained layers from a vgg
-matching_layers = [3, 6, 8, 11, 13, 16, 18]
 
-
-class UNet_down_block(nn.Module):
+class UNet_down_block(BaseModel):
     """
         Encoder class
     """
@@ -57,7 +41,7 @@ class UNet_down_block(nn.Module):
         return x
 
 
-class UNet_up_block(nn.Module):
+class UNet_up_block(BaseModel):
     """
         Decoder class
     """
@@ -80,7 +64,7 @@ class UNet_up_block(nn.Module):
         return x
 
 
-class UNet(nn.Module):
+class UNet(BaseModel):
     def __init__(self, topology, input_channels, num_classes):
         super(UNet, self).__init__()
         # these topologies are possible right now
@@ -194,7 +178,6 @@ class UNet(nn.Module):
         x = self.binary_last_conv(x)
         # return the final vector and the corresponding softmax-ed prediction
         return x, self.softmax(x)
-    pass
 
 @torch.no_grad()
 def check_model(topology, input_channels, num_classes, input_shape):
