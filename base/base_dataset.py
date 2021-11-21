@@ -14,7 +14,7 @@ np.random.seed(123)
 
 class BaseDataset(Dataset):
     def __init__(self, data_list, data_map_path, stride, model_input_size, bands, num_classes, one_hot,
-                 mode='train', transformation=None):
+                 mode='train', transform=None):
         super(dataset, self).__init__()
         self.data_list = data_list
         self.stride = stride
@@ -84,8 +84,8 @@ class BaseDataset(Dataset):
         if self.one_hot:
             this_label_subset = np.eye(self.num_classes)[this_label_subset.astype(int)]
         this_example_subset, this_label_subset = toTensor(image=this_example_subset, label=this_label_subset, one_hot=self.one_hot)
-        if self.transformation:
-            this_example_subset = self.transformation(this_example_subset)
+        if self.transform:
+            this_example_subset = self.transform(this_example_subset)
         return {'input': this_example_subset, 'label': this_label_subset, 'sample_identifier': (example_path, this_row, this_col)}
 
     def __len__(self):
