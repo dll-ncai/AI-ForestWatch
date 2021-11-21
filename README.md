@@ -12,49 +12,6 @@ The aim of this project is to use Landsat-8 imagery to perform forest cover chan
 
 ![Red and Green Heatmap for Forest Cover Change in Battagram](final-battagram-change.png "Forest Cover Change in Battagram")
 
-## Folder Structure
-  ```
-  pytorch-template/
-  │
-  ├── train.py - main script to start training
-  ├── test.py - evaluation of trained model
-  │
-  ├── config.json - holds configuration for training
-  ├── parse_config.py - class to handle config file and cli options
-  │
-  │
-  ├── base/ - abstract base classes
-  │   ├── base_data_loader.py
-  │   ├── base_dataset.py
-  │   ├── base_model.py
-  │   └── base_trainer.py
-  │
-  ├── data_loader/ - anything about data loading goes here
-  │   └── data_loaders.py
-  │
-  ├── data/ - default directory for storing input data
-  │
-  ├── model/ - models, losses, and metrics
-  │   ├── model.py
-  │   ├── metric.py
-  │   └── loss.py
-  │
-  ├── saved/
-  │   ├── models/ - trained models are saved here
-  │   └── log/ - default logdir for tensorboard and logging output
-  │
-  ├── trainer/ - trainers
-  │   └── trainer.py
-  │
-  ├── logger/ - module for logging
-  │   ├── logger.py
-  │   └── logger_config.json
-  │  
-  └── utils/ - small utility functions
-      ├── util.py
-      └── ...
-  ```
-
 
 ## Usage
 First install necessary requirements using 
@@ -65,9 +22,9 @@ First install necessary requirements using
 First you need to create the necessary pickle files used for either training or inference. These can be generated using data from Landsat8. We used images from 2014, 2016-2020 for training and 2015 for inference. If you want to use your own files, then you can use Google Earth Engine. 
 Both training and testing data may be found in [this drive folder](https://drive.google.com/drive/folders/1-YQrkbG--F1MeYkW6izYWhP19K1QWijN?usp=sharing). Create `data/` folder and store the data there.
 
-Once you obtain the necessary `.tiff` files, you can use`get_images_from_large_file` from `dataset.py` to generate the pickle dataset.
+Once you obtain the necessary `.tiff` files, you can use`get_images_from_large_file` from `./data_loader/datagen.py` to generate the pickle dataset.
 
-Having done so, generate the training lists for training, validation, and testing using `get_dataloaders_generated_data`. 
+Having done so, it is possible to generate training, validation and testing dataloaders. Doing this for the first time may take longer than subsequent attempts. So, it is recommended to initialize `Landsat8DataLoader` in `./data_loader/data_loaders` for all three sets of data once before training. 
 
 ## Training
 Training is done using U-Net Topology with VGG backbone. To train the model, a sample python command is present in `train_bash.txt`. For example, 
