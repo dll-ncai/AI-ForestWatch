@@ -12,6 +12,49 @@ The aim of this project is to use Landsat-8 imagery to perform forest cover chan
 
 ![Red and Green Heatmap for Forest Cover Change in Battagram](final-battagram-change.png "Forest Cover Change in Battagram")
 
+## Folder Structure
+  ```
+  pytorch-template/
+  │
+  ├── train.py - main script to start training
+  ├── test.py - evaluation of trained model
+  │
+  ├── config.json - holds configuration for training
+  ├── parse_config.py - class to handle config file and cli options
+  │
+  │
+  ├── base/ - abstract base classes
+  │   ├── base_data_loader.py
+  │   ├── base_dataset.py
+  │   ├── base_model.py
+  │   └── base_trainer.py
+  │
+  ├── data_loader/ - anything about data loading goes here
+  │   └── data_loaders.py
+  │
+  ├── data/ - default directory for storing input data
+  │
+  ├── model/ - models, losses, and metrics
+  │   ├── model.py
+  │   ├── metric.py
+  │   └── loss.py
+  │
+  ├── saved/
+  │   ├── models/ - trained models are saved here
+  │   └── log/ - default logdir for tensorboard and logging output
+  │
+  ├── trainer/ - trainers
+  │   └── trainer.py
+  │
+  ├── logger/ - module for logging
+  │   ├── logger.py
+  │   └── logger_config.json
+  │  
+  └── utils/ - small utility functions
+      ├── util.py
+      └── ...
+  ```
+
 
 ## Usage
 First install necessary requirements using 
