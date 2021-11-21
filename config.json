@@ -28,7 +28,7 @@
             "weight_decay": 0
         }
     },
-    "loss": "focal_loss",
+    "loss": "focal_loss2d",
     "metrics": [
         "accuracy"
     ],
