@@ -28,9 +28,11 @@ def check_focal_loss2d():
     target_np = np.random.randint(0, num_c, size=(16*64*64*1)).reshape((16, 64, 64))
     logits = torch.Tensor(out_x_np)
     target = torch.LongTensor(target_np)
-    weighted_loss = FocalLoss2d(weight=weights)
-    loss_val = weighted_loss(logits, target)
+    loss_val = weighted_loss(logits, target, weight=weights)
     print("Focalloss2d: ", loss_val.item())
+    
+def focal_loss2d(output, target, weights=None):
+    return FocalLoss2d(weight=weights)(output, target)
 
 if __name__ == '__main__':
     check_focal_loss2d()
