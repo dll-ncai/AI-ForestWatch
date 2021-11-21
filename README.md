@@ -17,8 +17,7 @@ The aim of this project is to use Landsat-8 imagery to perform forest cover chan
 First install necessary requirements using 
 
     pip install -r requirements.txt
-    cd code
-
+    
 ## Data Collection
 First you need to create the necessary pickle files used for either training or inference. These can be generated using data from Landsat8. We used images from 2014, 2016-2020 for training and 2015 for inference. If you want to use your own files, then you can use Google Earth Engine. 
 Both training and testing data may be found in [this drive folder](https://drive.google.com/drive/folders/1-YQrkbG--F1MeYkW6izYWhP19K1QWijN?usp=sharing).
