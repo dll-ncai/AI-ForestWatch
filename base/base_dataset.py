@@ -92,20 +92,18 @@ class BaseDataset(Dataset):
         return 1*self.total_images if self.mode == 'train' else self.total_images
 
 def get_indices(arr):
-    ndvi_band = (arr[:, :, 4] - arr[:, :, 3]) / (arr[:, :, 4] + arr[:, :, 3] + 1e-7)
-    evi_band = 2.5 * (arr[:, :, 4] - arr[:, :, 3]) / (arr[:, :, 4] + 6 * arr[:, :, 3] - 7.5 * arr[:, :, 1] + 1)
-    savi_band = 1.5 * (arr[:, :, 4] - arr[:, :, 3]) / (arr[:, :, 4] + v[:, :, 3] + 0.5)
-    msavi_band = 0.5 * (2 * arr[:, :, 4] + 1 - np.sqrt((2 * arr[:, :, 4] + 1) ** 2 - 8 * (arr[:, :, 4] - arr[:, :, 3])))
-    ndmi_band = (arr[:, :, 4] - arr[:, :, 5]) / (arr[:, :, 4] + arr[:, :, 5] + 1e-7)
-    nbr_band = (arr[:, :, 4] - arr[:, :, 6]) / (arr[:, :, 4] + arr[:, :, 6] + 1e-7)
-    nbr2_band = (arr[:, :, 5] - arr[:, :, 6]) / (arr[:, :, 5] + arr[:, :, 6] + 1e-7)
-    arr = np.dstack((arr, np.nan_to_num(ndvi_band)))
-    arr = np.dstack((arr, np.nan_to_num(evi_band)))
-    arr = np.dstack((arr, np.nan_to_num(savi_band)))
-    arr = np.dstack((arr, np.nan_to_num(msavi_band)))
-    arr = np.dstack((arr, np.nan_to_num(ndmi_band)))
-    arr = np.dstack((arr, np.nan_to_num(nbr_band)))
-    arr = np.dstack((arr, np.nan_to_num(nbr2_band)))
+    bands = {
+        "ndvi": (arr[:, :, 4] - arr[:, :, 3]) / (arr[:, :, 4] + arr[:, :, 3] + 1e-7),
+        "evi": 2.5 * (arr[:, :, 4] - arr[:, :, 3]) / (arr[:, :, 4] + 6 * arr[:, :, 3] - 7.5 * arr[:, :, 1] + 1),
+        "savi": 1.5 * (arr[:, :, 4] - arr[:, :, 3]) / (arr[:, :, 4] + v[:, :, 3] + 0.5),
+        "msavi": 0.5 * (2 * arr[:, :, 4] + 1 - np.sqrt((2 * arr[:, :, 4] + 1) ** 2 - 8 * (arr[:, :, 4] - arr[:, :, 3]))),
+        "ndmi": (arr[:, :, 4] - arr[:, :, 5]) / (arr[:, :, 4] + arr[:, :, 5] + 1e-7),
+        "nbr": (arr[:, :, 4] - arr[:, :, 6]) / (arr[:, :, 4] + arr[:, :, 6] + 1e-7),
+        "nbr2": (arr[:, :, 5] - arr[:, :, 6]) / (arr[:, :, 5] + arr[:, :, 6] + 1e-7),
+    }
+    for name in bands:
+        value = np.nan_to_num(bands[name])
+        arr = np.dstack((arr, value))
     return arr
 
 def fix(target_image):
