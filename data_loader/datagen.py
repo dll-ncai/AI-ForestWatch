@@ -36,9 +36,6 @@ def mask_landsat8_image_using_rasterized_shapefile(rasterized_shapefiles_path, d
   
 def get_images_from_large_file(data_directory_path, label_directory_path, destination, 
                                bands, year, region, stride):
-    # local machine
-
-
     image_path = os.path.join(data_directory_path, 'landsat8_{}_region_{}.tif'.format(year,region))
     label_path = os.path.join(label_directory_path, '{}_{}.tif'.format(region, year))
     if not os.path.exists(destination):
@@ -76,7 +73,7 @@ def get_images_from_large_file(data_directory_path, label_directory_path, destin
                 print(i*stride, (i+1)*stride, j*stride, (j+1)*stride)
             count += 1
             
-  def check_generated_dataset(path_to_dataset):
+def check_generated_dataset(path_to_dataset):
     for count in range(266):
         this_example_save_path = os.path.join(path_to_dataset, '{}.pkl'.format(count))
         with open(this_example_save_path, 'rb') as this_pickle:
@@ -90,7 +87,7 @@ def get_images_from_large_file(data_directory_path, label_directory_path, destin
         plt.show()
         
         
-  def check_generated_fnf_datapickle(example_path):
+def check_generated_fnf_datapickle(example_path):
     with open(example_path, 'rb') as this_pickle:
         (example_subset, label_subset) = pickle.load(this_pickle, encoding='latin1')
         example_subset = np.nan_to_num(example_subset)
@@ -102,9 +99,7 @@ def get_images_from_large_file(data_directory_path, label_directory_path, destin
     plt.subplot(122)
     plt.imshow(that)
     plt.show()
-    
-    
-    
+
 def main():
     # change these!
     data_directory_path = '/home/Projects/Forest/Data/all_billion_tree_regions/landsat-8/train_data'
@@ -117,7 +112,6 @@ def main():
     for district in all_districts:
         get_images_from_large_file(data_directory_path, label_directory_path, destination,
                                    bands=range(1, 12), year=2015, region=district, stride=256)
-        
-        
+
 if __name__ == "__main__":
     main()
