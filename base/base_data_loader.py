@@ -7,7 +7,7 @@ class BaseDataLoader(DataLoader):
     """
     Base class for all data loaders
     """
-    def __init__(self, dataset, batch_size, shuffle, train_split, num_workers, collate_fn=default_collate):
+    def __init__(self, dataset, batch_size, shuffle, num_workers, train_split=0.0, collate_fn=default_collate):
         self.train_split = train_split
         self.shuffle = shuffle
 
@@ -27,7 +27,7 @@ class BaseDataLoader(DataLoader):
 
     def _split_sampler(self, split):
         if split == 0.0:
-            return None, None
+            return None, None, None
 
         idx_full = np.arange(self.n_samples)
 
