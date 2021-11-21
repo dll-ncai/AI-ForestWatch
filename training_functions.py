@@ -1,3 +1,9 @@
+# Copyright (c) 2021, Technische Universität Kaiserslautern (TUK) & National University of Sciences and Technology (NUST).
+# All rights reserved.
+
+# This source code is licensed under the MIT license found in the
+# LICENSE.md file in the root directory of this source tree.
+
 from __future__ import print_function
 from __future__ import division
 import torch
