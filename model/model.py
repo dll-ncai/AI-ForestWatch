@@ -204,45 +204,7 @@ def check_model(topology, input_channels, num_classes, input_shape):
     with torch.no_grad():
         out_tensor, softmaxed = model(in_tensor)
         print(in_tensor.shape, out_tensor.shape)
-    pass
-
-
-@torch.no_grad()
-def check_model_on_dataloader():
-    model = UNet(input_channels=11, num_classes=16)
-    model.eval()
-    model.cuda(device=0)
-    loaders = get_dataloaders_generated_data(generated_data_path='generated_dataset', save_data_path='pickled_generated_datalist.pkl', block_size=256,
-                                             model_input_size=64, batch_size=128, num_workers=8)
-    with torch.no_grad():
-        train_dataloader, val_dataloader, test_dataloader = loaders
-        for idx, data in enumerate(train_dataloader):
-            examples, labels = data['input'], data['label']
-            examples = examples.cuda(device=0)
-            print('-> on batch {}/{}, {}'.format(idx + 1, len(train_dataloader), examples.size()))
-            out_tensor, prediction = model(examples)
-            print(examples.shape, labels.shape, out_tensor.shape,
-                  prediction.shape, torch.argmax(prediction, dim=1)[0,:,:].shape)
-
-
-def see_children_recursively(graph, layer=None):
-    further = False
-    children = list(graph.children())
-    for child in children:
-        further = True
-        if layer:
-            see_children_recursively(child, layer)
-        else:
-            see_children_recursively(child)
-    if layer:
-        if not further and isinstance(graph, layer):
-            print(graph)
-    else:
-        if not further:
-            print(graph)
-
 
 if __name__ == '__main__':
     # check_model
     check_model(topology="ENC_1_DEC_1", input_channels=7, num_classes=2, input_shape=[4, 7, 64, 64])
- 
