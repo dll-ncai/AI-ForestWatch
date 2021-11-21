@@ -24,7 +24,7 @@ Both training and testing data may be found in [this drive folder](https://drive
 
 Once you obtain the necessary `.tiff` files, you can use [`get_images_from_large_file`](./data_loader/datagen.py#L37) to generate the pickle dataset.
 
-Having done so, it is possible to generate training, validation and testing dataloaders. Doing this for the first time may take longer than subsequent attempts. So, it is recommended to initialize [`Landsat8DataLoader`](./data_loader/data_loaders#L14) for all three sets of data once before training. 
+Having done so, it is possible to generate training, validation and testing dataloaders. Doing this for the first time may take longer than subsequent attempts. So, it is recommended to initialize [`Landsat8DataLoader`](./data_loader/data_loaders.py#L14) for all three sets of data once before training. 
 
 ## Training
 Training is done using U-Net Topology with VGG backbone. To train the model, a sample python command is present in `train_bash.txt`. For example, 
