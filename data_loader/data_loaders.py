@@ -1,3 +1,9 @@
+# Copyright (c) 2021, Technische Universität Kaiserslautern (TUK) & National University of Sciences and Technology (NUST).
+# All rights reserved.
+
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
 import os
 import random
 from torchvision import datasets, transforms
@@ -24,9 +30,7 @@ class Landsat8DataLoader(BaseDataLoader):
         full_examples_list = [os.path.join(extended_data_path, x) for x in os.listdir(extended_data_path)]
         random.shuffle(full_examples_list)
         train_split = int(train_split*len(full_examples_list))
-        
-        test_list = 
-        
+               
         if mode == 'train':
             data_list = full_examples_list[:train_split]
         else:
