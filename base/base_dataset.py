@@ -115,14 +115,16 @@ def fix(target_image):
     return target_image
 
 
-def toTensor(**kwargs):
-    image, label = kwargs['image'], kwargs['label']
-    'will convert image and label from numpy to torch tensor'
+def toTensor(image, label, one_hot=True):
+    '''will convert image and label from numpy to torch tensor'''
     # swap color axis because
     # numpy image: H x W x C
     # torch image: C X H X W
     image = image.transpose((2, 0, 1))
-    if kwargs['one_hot']:
+    img_tensor = torch.from_numpy(image).float()
+    if one_hot:
         label = label.transpose((2, 0, 1))
-        return torch.from_numpy(image).float(), torch.from_numpy(label).float()
-    return torch.from_numpy(image).float(), torch.from_numpy(label).long()
+        label_tensor = torch.from_numpy(label).float()
+    else:
+        label_tensor = torch.from_numpy(label).long()
+    return img_tensor, label_tensor
