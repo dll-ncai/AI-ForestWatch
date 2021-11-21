@@ -16,7 +16,6 @@ def adaptive_resize(array, new_shape):
     single_band_resized = single_band.resize(new_shape, Image.NEAREST)
     return np.asarray(single_band_resized)
 
-  
 def mask_landsat8_image_using_rasterized_shapefile(rasterized_shapefiles_path, district, this_landsat8_bands_list):
     this_shapefile_path = os.path.join(rasterized_shapefiles_path, "{}_shapefile.tif".format(district))
     ds = gdal.Open(this_shapefile_path)
@@ -35,12 +34,10 @@ def mask_landsat8_image_using_rasterized_shapefile(rasterized_shapefiles_path, d
     print("{}: Generated Image Size: {}".format(district, clipped_full_spectrum_resized[0].shape, len(clipped_full_spectrum_resized)))
     return clipped_full_spectrum_resized
   
-  
-def get_images_from_large_file(bands, year, region, stride):
+def get_images_from_large_file(data_directory_path, label_directory_path, destination, 
+                               bands, year, region, stride):
     # local machine
-    data_directory_path = '/home/Projects/Forest/Data/all_billion_tree_regions/landsat-8/train_data'
-    label_directory_path = '/home/Projects/Forest/Data/GroundTruth'
-    destination = '/home/Projects/Forest/Data/generated_data'
+
 
     image_path = os.path.join(data_directory_path, 'landsat8_{}_region_{}.tif'.format(year,region))
     label_path = os.path.join(label_directory_path, '{}_{}.tif'.format(region, year))
@@ -109,12 +106,17 @@ def get_images_from_large_file(bands, year, region, stride):
     
     
 def main():
+    # change these!
+    data_directory_path = '/home/Projects/Forest/Data/all_billion_tree_regions/landsat-8/train_data'
+    label_directory_path = '/home/Projects/Forest/Data/GroundTruth'
+    destination = '/home/Projects/Forest/Data/generated_data'
     # generate pickle files to train from
     all_districts = ["abbottabad", "battagram", "buner", "chitral", "hangu", "haripur", "karak", "kohat", "kohistan", 
                     "lower_dir", "malakand", "mansehra", "nowshehra", "shangla", "swat", "tor_ghar", "upper_dir"]
     # number of images generated depends on value of stride
     for district in all_districts:
-        get_images_from_large_file(bands=range(1, 12), year=2015, region=district, stride=256)
+        get_images_from_large_file(data_directory_path, label_directory_path, destination,
+                                   bands=range(1, 12), year=2015, region=district, stride=256)
         
         
 if __name__ == "__main__":
