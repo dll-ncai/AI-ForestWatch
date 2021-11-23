@@ -51,6 +51,7 @@ def main(config):
                       device=device,
                       data_loader=data_loader,
                       valid_data_loader=valid_data_loader,
+                      test_data_loader=test_data_loader,
                       lr_scheduler=lr_scheduler)
 
     trainer.train()
