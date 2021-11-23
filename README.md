@@ -73,7 +73,7 @@ Having done so, it is possible to generate training, validation and testing data
 Training is done using U-Net Topology with VGG backbone. A sample [pretrained model](./config.json#L47) that we have trained is used as the default checkpoint. If it is not found, then training will start from scratch unless a checkpoint is provided through command line.
 
 ### Using config files
-Modify the configurations in `.json` config files, then run:
+If needed, modify the configurations in `.json` config files. Then run:
 
   ```
   python train.py --config config.json
