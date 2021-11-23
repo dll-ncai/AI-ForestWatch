@@ -32,6 +32,9 @@ def check_focal_loss2d():
     print("Focalloss2d: ", loss_val.item())
     
 def focal_loss2d(output, target, weights=None):
+    if not weights:
+        weights = torch.Tensor([10, 10])
+        weights = weights.cuda() if torch.cuda.is_available() else weights
     return FocalLoss2d(weight=weights)(output, target)
 
 if __name__ == '__main__':
