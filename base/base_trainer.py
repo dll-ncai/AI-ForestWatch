@@ -48,6 +48,14 @@ class BaseTrainer:
         :param epoch: Current epoch number
         """
         raise NotImplementedError
+        
+        
+    @abstractmethod
+    def _test_epoch(self):
+        """
+        Testing logic after last epoch
+        """
+        raise NotImplementedError
 
     def train(self):
         """
@@ -92,6 +100,10 @@ class BaseTrainer:
 
             if epoch % self.save_period == 0:
                 self._save_checkpoint(epoch, save_best=best)
+                
+            if epoch == self.epochs:
+                test_log = self._test_epoch()
+                log.update(**{'test_'+k : v for k, v in test_log.items()})
 
     def _save_checkpoint(self, epoch, save_best=False):
         """
