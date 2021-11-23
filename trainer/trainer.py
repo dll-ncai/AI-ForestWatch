@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from torch.nn.utils import clip_grad_norm_
 from torchvision.utils import make_grid
 from base import BaseTrainer
 from utils import inf_loop, MetricTracker
@@ -50,6 +51,7 @@ class Trainer(BaseTrainer):
             output = self.model(data)
             loss = self.criterion(output, target)
             loss.backward()
+            clip_grad_norm_(self.model.parameters(), 0.05)
             self.optimizer.step()
 
             self.train_metrics.update('loss', loss.item())
