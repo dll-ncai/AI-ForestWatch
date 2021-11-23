@@ -6,7 +6,7 @@
         "type": "UNet",
         "args": {
             "topology": "ENC_4_DEC_4",
-            "input_channels": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+            "input_channels": 18,
             "classes": ["Non-Forest", "Forest"],
             "input_size": 128
         }
@@ -15,16 +15,18 @@
         "type": "Landsat8DataLoader",
         "args":{
             "data_dir": "data/",
+            "data_split_lists_path": "data/split_lists/,
             "batch_size": 16,
-            "shuffle": true,
-            "validation_split": 0.1,
-            "num_workers": 4
+            "model_input_size": 128,
+            "bands": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+            "num_classes": 2,
+            "one_hot": true,
         }
     },
     "optimizer": {
         "type": "RMSprop",
         "args":{
-            "lr": 0.000001,
+            "lr": 1e-6,
             "weight_decay": 0
         }
     },
