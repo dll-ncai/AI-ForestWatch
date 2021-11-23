@@ -39,6 +39,8 @@ class BaseTrainer:
 
         if config.resume is not None:
             self._resume_checkpoint(config.resume)
+        elif 'pretrained_model' in cfg_trainer:
+            self._resume_checkpoint(cfg_trainer['pretrained_model'])
 
     @abstractmethod
     def _train_epoch(self, epoch):
