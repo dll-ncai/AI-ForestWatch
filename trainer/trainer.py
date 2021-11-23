@@ -68,6 +68,9 @@ class Trainer(BaseTrainer):
         if self.do_validation:
             val_log = self._valid_epoch()
             log.update(**{'val_'+k : v for k, v in val_log.items()})
+        if self.do_test and epoch == self.config['trainer']['epochs']:
+            test_log = self._test_epoch()
+            log.update(**{'test_'+k : v for k, v in test_log.items()})
 
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
