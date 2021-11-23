@@ -22,7 +22,7 @@ First install necessary requirements using
 First you need to create the necessary pickle files used for either training or inference. These can be generated using data from Landsat8. We used images from 2014, 2016-2020 for training and 2015 for inference. If you want to use your own files, then you can use Google Earth Engine. 
 Both training and testing data may be found in [this drive folder](https://drive.google.com/drive/folders/1-YQrkbG--F1MeYkW6izYWhP19K1QWijN?usp=sharing). Create `data/landsat8` folder and store the data there .
 
-Once you obtain the necessary `.tiff` files, you can use [`get_images_from_large_file`](./data_loader/datagen.py#L37) to generate the pickle dataset. Create a folder called `data/pickled_dataset/` and store the pickled files for each region/year there.
+Once you obtain the necessary `.tiff` files, you can use [`get_images_from_large_file`](./data_loader/datagen.py#L37) to generate the pickle dataset. Create a folder called `data/pickled_dataset/` and store the pickled files for each region/year there. For now, it's assumed that you only downloaded train data. If you want to store train and test pickle files separately, then you need to create two folders `data/pickled_dataset/train` and `data/pickled_dataset/test`. 
 
 Having done so, it is possible to generate training, validation and testing dataloaders. Doing this for the first time may take longer than subsequent attempts. So, it is recommended to initialize [`Landsat8DataLoader`](./data_loader/data_loaders.py#L14) for all three sets of data once before training. 
 
