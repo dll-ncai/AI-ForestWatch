@@ -98,7 +98,8 @@ You can resume from a previously saved checkpoint by:
 `inference_btt_2020.py` is the script used to run inference on a given test image using the trained model.
 
 ## Acknowledgements
-Part of this research is supported by the German Academic Exchange Service (DAAD) under grant no. 57402923.
+- Part of this research is supported by the German Academic Exchange Service (DAAD) under grant no. 57402923.
+- This project has followed the PyTorch template provided by [victoresque](https://github.com/victoresque/pytorch-template)
  
  ## Reference 
 
