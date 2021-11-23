@@ -45,13 +45,11 @@ def get_images_from_large_file(data_directory_path, label_directory_path, destin
     # we will use this to divide those fnf images
     covermap = gdal.Open(label_path, gdal.GA_ReadOnly)
     channel = covermap.GetRasterBand(1)
-    # big_x_size, big_y_size = covermap.RasterXSize, covermap.RasterYSize
     label = channel.ReadAsArray()
     image_ds = gdal.Open(image_path, gdal.GA_ReadOnly)
     x_size, y_size = image_ds.RasterXSize, image_ds.RasterYSize
     # we need the difference of the two raster sizes to do the resizing
     label = adaptive_resize(label, new_shape=(x_size, y_size))
-    # print(label.shape, (y_size, x_size))
     all_raster_bands = [image_ds.GetRasterBand(x) for x in bands]
     count = 1
     for i in range(y_size//stride):
@@ -102,9 +100,9 @@ def check_generated_fnf_datapickle(example_path):
 
 def main():
     # change these!
-    data_directory_path = '/home/Projects/Forest/Data/all_billion_tree_regions/landsat-8/train_data'
-    label_directory_path = '/home/Projects/Forest/Data/GroundTruth'
-    destination = '/home/Projects/Forest/Data/generated_data'
+    data_directory_path = ...
+    label_directory_path = ...
+    destination = ...
     # generate pickle files to train from
     all_districts = ["abbottabad", "battagram", "buner", "chitral", "hangu", "haripur", "karak", "kohat", "kohistan", 
                     "lower_dir", "malakand", "mansehra", "nowshehra", "shangla", "swat", "tor_ghar", "upper_dir"]
