@@ -85,6 +85,15 @@ You can resume from a previously saved checkpoint by:
   ```
   python train.py --resume path/to/checkpoint
   ```
+  
+#### Optional Keywords
+
+  ```
+  --lr --learning_rate
+  --bs --batch_size
+  --epochs
+  --topology : should be one of the following (ENC_1_DEC_1, ENC_2_DEC_2, ENC_3_DEC_3, ENC_3_DEC_3)
+  ```
 
 ## Inference
 `inference_btt_2020.py` is the script used to run inference on a given test image using the trained model.
