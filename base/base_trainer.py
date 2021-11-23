@@ -37,8 +37,10 @@ class BaseTrainer:
 
         self.checkpoint_dir = config.save_dir
 
+        # checkpoint provided to train.py through command line
         if config.resume is not None:
             self._resume_checkpoint(config.resume)
+        # pretrained model specified in config.json
         elif 'pretrained_model' in cfg_trainer:
             self._resume_checkpoint(cfg_trainer['pretrained_model'])
 
