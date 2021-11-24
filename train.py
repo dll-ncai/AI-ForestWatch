@@ -49,8 +49,8 @@ def main(config):
     trainer = Trainer(model, criterion, metrics, optimizer,
                       config=config,
                       device=device,
-                      data_loader=data_loader,
-                      valid_data_loader=valid_data_loader,
+                      data_loader=train_data_loader,
+                      valid_data_loader=val_data_loader,
                       test_data_loader=test_data_loader,
                       lr_scheduler=lr_scheduler)
 

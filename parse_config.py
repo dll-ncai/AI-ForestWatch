@@ -34,7 +34,7 @@ class ConfigParser:
 
         # make directory for saving checkpoints, log, and error maps.
         exist_ok = run_id == ''
-        self.save_dir.mkdir(parents=True, exist_ok=exist_ok)
+        self.models_dir.mkdir(parents=True, exist_ok=exist_ok)
         self.log_dir.mkdir(parents=True, exist_ok=exist_ok)
         self.error_maps_dir.mkdir(parents=True, exist_ok=exist_ok)
 
@@ -127,7 +127,7 @@ class ConfigParser:
 
     @property
     def models_dir(self):
-        return self.models_dir
+        return self._models_dir
 
     @property
     def log_dir(self):
@@ -135,7 +135,7 @@ class ConfigParser:
     
     @property
     def error_maps_dir(self):
-        return self.error_maps_dir
+        return self._error_maps_dir
 
 # helper functions to update config dict with custom cli options
 def _update_config(config, modification):

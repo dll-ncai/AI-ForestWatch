@@ -35,7 +35,7 @@ class BaseTrainer:
 
         self.start_epoch = 1
 
-        self.checkpoint_dir = config.save_dir
+        self.checkpoint_dir = config.models_dir
 
         # checkpoint provided to train.py through command line
         if config.resume is not None:

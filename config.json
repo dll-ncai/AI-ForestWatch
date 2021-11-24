@@ -7,20 +7,19 @@
         "args": {
             "topology": "ENC_4_DEC_4",
             "input_channels": 18,
-            "classes": ["Non-Forest", "Forest"],
-            "input_size": 128
+            "num_classes": 2
         }
     },
     "data_loader": {
         "type": "Landsat8DataLoader",
         "args":{
-            "data_dir": "data/pickled_dataset/",
-            "data_split_lists_path": "data/split_lists/",
+            "data_dir": "/content/drive/MyDrive/training_2015_pickled_data",
+            "data_split_lists_path": "/content/drive/MyDrive/temp_split",
             "batch_size": 16,
             "model_input_size": 128,
             "bands": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
             "num_classes": 2,
-            "one_hot": true,
+            "one_hot": true
         }
     },
     "optimizer": {
@@ -44,13 +43,13 @@
         "epochs": 20,
        
         "save_dir": "saved/",
-        "pretrained_model": "model_69_topologyENC_4_DEC_4_lr_1e-06_bands18.pt"
+        "pretrained_model": "/content/drive/MyDrive/Forest/Updated/semantic_segmentation/output/PreTrainedModel/model_69_topologyENC_4_DEC_4_lr1e-06_bands18.pt",
         "save_period": 1,
         "verbosity": 2,
         
         "monitor": "off",
         "early_stop": 0,
         
-        "tensorboard": false,
+        "tensorboard": false
     }
 }
