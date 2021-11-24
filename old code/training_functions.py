@@ -97,7 +97,6 @@ def train_net(model, model_topology, generated_data_path, input_dim, bands, clas
             label = label.cuda(device=device) if cuda else label
             out_x, logits = model.forward(test_x[:,bands_for_training,:,:])
             pred = torch.argmax(logits, dim=1)
-#             not_one_hot_target = torch.argmax(label, dim=1) + 1
             not_one_hot_target = torch.argmax(label, dim=1)
             loss = focal_criterion(logits, not_one_hot_target)
             loss.backward()

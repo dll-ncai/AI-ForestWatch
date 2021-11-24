@@ -27,7 +27,7 @@ class Landsat8DataLoader(BaseDataLoader):
             print('LOG: No saved data found. Making new data directory {}'.format(data_split_lists_path))
             os.mkdir(data_split_lists_path)
         
-        full_examples_list = [os.path.join(extended_data_path, x) for x in os.listdir(extended_data_path)]
+        full_examples_list = [os.path.join(self.data_dir, x) for x in os.listdir(self.data_dir)]
         random.shuffle(full_examples_list)
         train_split = int(train_split*len(full_examples_list))
                

@@ -44,19 +44,22 @@ class Trainer(BaseTrainer):
         """
         self.model.train()
         self.train_metrics.reset()
-        for batch_idx, (data, target) in enumerate(self.data_loader):
+        for batch_idx, item in enumerate(self.data_loader):
+            data, target = item['input'], item['label']
             data, target = data.to(self.device), target.to(self.device)
 
             self.optimizer.zero_grad()
-            output = self.model(data)
-            loss = self.criterion(output, target)
+            out_x, logits = self.model(data)
+            pred = torch.argmax(logits, dim=1)
+            not_one_hot_target = torch.argmax(target, dim=1)
+            loss = self.criterion(logits, not_one_hot_target)
             loss.backward()
             clip_grad_norm_(self.model.parameters(), 0.05)
             self.optimizer.step()
 
             self.train_metrics.update('loss', loss.item())
             for met in self.metric_ftns:
-                self.train_metrics.update(met.__name__, met(output, target))
+                self.train_metrics.update(met.__name__, met(logits, not_one_hot_target))
 
             if batch_idx % self.log_step == 0:
                 self.logger.debug('Train Epoch: {} {} Loss: {:.6f}'.format(
@@ -88,15 +91,18 @@ class Trainer(BaseTrainer):
         self.model.eval()
         self.valid_metrics.reset()
         with torch.no_grad():
-            for batch_idx, (data, target) in enumerate(self.valid_data_loader):
+            for batch_idx, item in enumerate(self.valid_data_loader):
+                data, target = item['input'], item['label']
                 data, target = data.to(self.device), target.to(self.device)
 
-                output = self.model(data)
-                loss = self.criterion(output, target)
+                out_x, logits = self.model(data)
+                pred = torch.argmax(logits, dim=1)
+                not_one_hot_target = torch.argmax(target, dim=1)
+                loss = self.criterion(logits, not_one_hot_target)
 
                 self.valid_metrics.update('loss', loss.item())
                 for met in self.metric_ftns:
-                    self.valid_metrics.update(met.__name__, met(output, target))
+                    self.valid_metrics.update(met.__name__, met(logits, not_one_hot_target))
         return self.valid_metrics.result()
     
     def _test_epoch(self):
@@ -108,15 +114,18 @@ class Trainer(BaseTrainer):
         self.model.eval()
         self.test_metrics.reset()
         with torch.no_grad():
-            for batch_idx, (data, target) in enumerate(self.test_data_loader):
+            for batch_idx, item in enumerate(self.test_data_loader):
+                data, target = item['input'], item['label']
                 data, target = data.to(self.device), target.to(self.device)
 
-                output = self.model(data)
-                loss = self.criterion(output, target)
+                out_x, logits = self.model(data)
+                pred = torch.argmax(logits, dim=1)
+                not_one_hot_target = torch.argmax(target, dim=1)
+                loss = self.criterion(logits, not_one_hot_target)
 
                 self.test_metrics.update('loss', loss.item())
                 for met in self.metric_ftns:
-                    self.test_metrics.update(met.__name__, met(output, target))
+                    self.test_metrics.update(met.__name__, met(logits, not_one_hot_target))
         return self.test_metrics.result()
     
 
