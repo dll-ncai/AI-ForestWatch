@@ -1,3 +1,9 @@
+# Copyright (c) 2021, Technische Universität Kaiserslautern (TUK) & National University of Sciences and Technology (NUST).
+# All rights reserved.
+
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
 import numpy as np
 import torch
 from torch.nn.utils import clip_grad_norm_
