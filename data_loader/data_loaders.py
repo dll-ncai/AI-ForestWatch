@@ -7,7 +7,7 @@
 import os
 import random
 from torchvision import datasets, transforms
-from base import BaseDataLoader, BaseDataset
+from base import BaseDataset, BaseTrainDataset, BaseInferenceDataset
 
 random.seed(123)
 
