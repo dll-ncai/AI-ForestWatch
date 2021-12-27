@@ -140,7 +140,9 @@ def BaseInferenceDataset(Dataset):
             # at this point, we pick which bands to forward based on command-line argument
             this_example_subset = this_example_subset[:, :, self.bands]
             this_example_subset = toTensor(image=this_example_subset)
-            return {'coordinates': np.asarray([this_row, this_row + self.model_input_size, this_col, this_col + self.model_input_size]),
+            x1, x2 = this_row, this_row + self.model_input_size
+            y1, y2 = this_col, this_col + self.model_input_size
+            return {'coordinates': np.asarray([x1, x2, y1, y2]),
                     'input': this_example_subset}
 
         def __len__(self):
