@@ -11,7 +11,7 @@
         }
     },
     "data_loader": {
-        "type": "Landsat8DataLoader",
+        "type": "Landsat8TrainDataLoader",
         "args":{
             "data_dir": "/content/drive/MyDrive/training_2015_pickled_data",
             "data_split_lists_path": "/content/drive/MyDrive/temp_split",
