@@ -7,13 +7,13 @@
 import os
 import random
 from torchvision import datasets, transforms
-from base import BaseTrainDataset, BaseInferenceDataset
+from base import BaseTrainDataset, BaseInferenceDataset, BaseDataLoader
 
 random.seed(123)
 
-class Landsat8DataLoader(BaseDataLoader):
+class Landsat8TrainDataLoader(BaseDataLoader):
     """
-    Dataloader for Landsat8 generated pickle data
+    Dataloader to train, validate, and test on Landsat8 generated pickle data
     """
     def __init__(self, data_dir, data_split_lists_path, batch_size, model_input_size, bands, num_classes, one_hot, 
                  train_split=0.8, mode='train', num_workers=4, transforms=None):
@@ -50,4 +50,18 @@ class Landsat8DataLoader(BaseDataLoader):
             self.dataset = BaseDataset(data_list, data_map_path, model_input_size, model_input_size, 
                                        bands, num_classes, one_hot, mode='test', transforms=transforms)
             super().__init__(self.dataset, batch_size, False, num_workers)
+        
+class Landsat8InferenceDataLoader(BaseDataLoader):
+    """
+    Dataloader to infer Landsat8 generated pickle data
+    """
+    def __init__(self, rasterized_shapefiles_path, district, image_path, model_input_size, bands, num_classes, batch_size, num_workers,
+                transforms=None):
+        # create dataset class instances
+        self.dataset = BaseInferenceDataset(rasterized_shapefiles_path=rasterized_shapefiles_path,
+                                            image_path=image_path, 
+                                            bands=bands, 
+                                            stride=model_input_size,
+                                            transformation=transformation)
+        super().__init__(self.dataset, batch_size, False, num_workers)
         
