@@ -17,15 +17,8 @@ from parse_config import ConfigParser
 def main(config):
     logger = config.get_logger('test')
 
-    # setup data_loader instances
-    data_loader = getattr(module_data, config['data_loader']['type'])(
-        config['data_loader']['args']['data_dir'],
-        batch_size=512,
-        shuffle=False,
-        train_split=0.0,
-        training=False,
-        num_workers=4
-    )
+    # setup data_loader 
+    data_loader = config.init_obj('inference_data_loader', module_data)
 
     # build model architecture
     model = config.init_obj('arch', module_arch)
