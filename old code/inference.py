@@ -48,17 +48,8 @@ def mask_landsat8_image_using_rasterized_shapefile(rasterized_shapefiles_path, d
     clipped_full_spectrum = list()
     for idx, this_band in enumerate(this_landsat8_bands_list):
         print("{}: Band-{} Size: {}".format(district, idx, this_band.shape))
-        # print(this_band.shape)
-        # print(this_band)
-        # input('yoooo')
-        # x_size, y_size = this_band.shape
         this_band = adaptive_resize(this_band, (x_size, y_size))
-        # shapefile_mask = adaptive_resize(shapefile_mask, (y_size, x_size))
-        # print(this_band.shape)
-        # print(shapefile_mask.shape)
-        # input('complete')
         clipped_full_spectrum.append(np.multiply(this_band, shapefile_mask))
-        # clipped_full_spectrum.append(this_band)
     x_prev, y_prev = clipped_full_spectrum[0].shape
     x_fixed, y_fixed = int(128 * np.ceil(x_prev / 128)), int(128 * np.ceil(y_prev / 128))
     diff_x, diff_y = x_fixed - x_prev, y_fixed - y_prev
@@ -69,9 +60,6 @@ def mask_landsat8_image_using_rasterized_shapefile(rasterized_shapefiles_path, d
     clipped_full_spectrum_stacked_image = np.dstack(clipped_full_spectrum_resized)
     print("{}: Generated Image Size: {}".format(district, clipped_full_spectrum_stacked_image.shape))
     return clipped_full_spectrum_stacked_image, clipped_shapefile_mask_resized
-#     return clipped_full_spectrum_stacked_image
-
-
 
 def toTensor(**kwargs):
     image = kwargs['image']
@@ -84,9 +72,6 @@ def toTensor(**kwargs):
 
 
 def get_inference_loader(rasterized_shapefiles_path, district, image_path, model_input_size, bands, num_classes, batch_size, num_workers):
-
-    # This function is faster because we have already saved our data as subset pickle files
-    print('inside dataloading code...')
     class dataset(Dataset):
         def __init__(self, rasterized_shapefiles_path, image_path, bands, stride, transformation):
             super(dataset, self).__init__()
@@ -104,26 +89,12 @@ def get_inference_loader(rasterized_shapefiles_path, district, image_path, model
             os.mkdir(self.temp_dir)
             print('LOG: Generating data map now...')
             image_ds = gdal.Open(image_path, gdal.GA_ReadOnly)
-            # print(image_ds.RasterCount)
-            # input('yoooo')
-            # STRANGELY BAND COUNT FOR TRAIN_DATA IS 12 and TEST DATA IS 11 FIX Accordingly to 11
             all_raster_bands = [image_ds.GetRasterBand(x+1).ReadAsArray() for x in range(image_ds.RasterCount)]
-
-            # test_image = np.nan_to_num(all_raster_bands[0].ReadAsArray())
-            # for band in all_raster_bands[1:]:
-            #     test_image = np.dstack((test_image, np.nan_to_num(band.ReadAsArray())))
-
-            # test_image = np.nan_to_num(all_raster_bands[0])
-            # for band in all_raster_bands[1:]:
-            #     test_image = np.dstack((test_image, np.nan_to_num(band)))
-
 
 
             # mask the image and adjust its size at this point
             test_image, self.adjustment_mask = mask_landsat8_image_using_rasterized_shapefile(rasterized_shapefiles_path=rasterized_shapefiles_path,
                                                                                               district=district, this_landsat8_bands_list=all_raster_bands)
-#             test_image = mask_landsat8_image_using_rasterized_shapefile(rasterized_shapefiles_path=rasterized_shapefiles_path,
-#                                                                                               district=district, this_landsat8_bands_list=all_raster_bands)
             temp_image_path = os.path.join(self.temp_dir, 'temp_image.npy')
             np.save(temp_image_path, test_image)
             self.temp_test_image = np.load(temp_image_path, mmap_mode='r')
@@ -135,7 +106,6 @@ def get_inference_loader(rasterized_shapefiles_path, district, image_path, model
                     self.all_images.append((i, j))
                     self.total_images += 1
             self.shape = [i+self.stride, j+self.stride]
-            pass
 
         def __getitem__(self, k):
             (this_row, this_col) = self.all_images[k]
@@ -174,9 +144,7 @@ def get_inference_loader(rasterized_shapefiles_path, district, image_path, model
             shutil.rmtree(self.temp_dir)
             print('Log: Temporary memory cleared')
 
-    ######################################################################################
     transformation = None
-    ######################################################################################
     # create dataset class instances
     inference_data = dataset(rasterized_shapefiles_path=rasterized_shapefiles_path, image_path=image_path, bands=bands, stride=model_input_size,
                              transformation=transformation)
@@ -240,13 +208,6 @@ def run_inference(args):
             save_this_map_path = os.path.join(args.dest, '{}_{}_inferred_map.png'.format(district, year))
             matimg.imsave(save_this_map_path, forest_map_for_visualization)
             print('Saved: {} @ {}'.format(save_this_map_path, forest_map_for_visualization.shape))
-            # save_path = os.path.join(args.dest, 'generated_map_{}_{}.npy'.format(district, year))
-            # np.save(save_path, generated_map)
-            #########################################################################################3
-            # inference_loader.dataset.clear_mem()
-            pass
-        pass
-    pass
 
 
 def main():
