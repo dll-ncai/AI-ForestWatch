@@ -7,8 +7,10 @@
 import os
 import random
 import pickle
+import shutil
 import numpy as np
 import matplotlib.pyplot as plt
+import gdal
 import torch
 from torch.utils.data import Dataset
 
