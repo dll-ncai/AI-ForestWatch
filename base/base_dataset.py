@@ -17,7 +17,7 @@ np.random.seed(123)
 class BaseDataset(Dataset):
     def __init__(self, data_list, data_map_path, stride, model_input_size, bands, num_classes, one_hot,
                  mode='train', transforms=None):
-        super(BaseDataset, self).__init__()
+        super(Dataset, self).__init__()
         self.data_list = data_list
         self.stride = stride
         self.model_input_size = model_input_size
