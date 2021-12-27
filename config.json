@@ -11,16 +11,30 @@
         }
     },
     "data_loader": {
-        "type": "Landsat8TrainDataLoader",
-        "args":{
-            "data_dir": "/content/drive/MyDrive/training_2015_pickled_data",
-            "data_split_lists_path": "/content/drive/MyDrive/temp_split",
-            "batch_size": 16,
-            "model_input_size": 128,
-            "bands": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
-            "num_classes": 2,
-            "one_hot": true
+        "train": {
+            "type": "Landsat8TrainDataLoader",
+            "args": {
+                "data_dir": "/content/drive/MyDrive/Forest DAAD Data/train/training_2015_pickled_data",
+                "data_split_lists_path": "/content/drive/MyDrive/Forest DAAD Data/train/temp_split",
+                "batch_size": 16,
+                "model_input_size": 128,
+                "bands": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+                "num_classes": 2,
+                "one_hot": true
+            }
+        },
+        "test": {
+            "type": "Landsat8InferenceDataLoader",
+            "args": {
+                "data_path": "/content/drive/MyDrive/Forest DAAD Data/inference/landsat-8/test_data/", 
+                "shapefiles": "/content/drive/MyDrive/Forest DAAD Data/inference/landsat-8/District_Shapefiles_as_Clipping_bands",
+                "batch_size": 32, 
+                "bands": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+                "num_classes": 2,
+                "destination": "saved/inference/destination"
+            }
         }
+        
     },
     "optimizer": {
         "type": "RMSprop",
