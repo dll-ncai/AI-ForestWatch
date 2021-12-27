@@ -14,6 +14,8 @@ import gdal
 import torch
 from torch.utils.data import Dataset
 
+from dataget import mask_landsat8_image_using_rasterized_shapefile
+
 np.random.seed(123)
 
 class BaseTrainDataset(Dataset):
@@ -45,7 +47,7 @@ class BaseTrainDataset(Dataset):
                     _, label = pickle.load(this_data, encoding='latin1')
                     # we skip a label with too few valid pixels (<0.01*128*128)
                     if np.count_nonzero(label) > 160:
-                      row_limit, col_limit = label.shape[0]-model_input_size, label.shape[1]-model_input_size
+                      row_limit, col_limit = label.shape[0]-model_input_size, label.shape[1] - model_input_size
                       del label, _  # clear memory
                       for i in range(0, row_limit, self.stride):
                           for j in range(0, col_limit, self.stride):
