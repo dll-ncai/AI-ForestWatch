@@ -28,9 +28,9 @@ def main(config):
     logger = config.get_logger('train')
 
     # setup data_loader instances
-    train_data_loader = config.init_obj('data_loader', module_data)
-    val_data_loader = config.init_obj('data_loader', module_data, mode='val')
-    test_data_loader = config.init_obj('data_loader', module_data, mode='test')
+    train_data_loader = config.init_obj('train_data_loader', module_data)
+    val_data_loader = config.init_obj('train_data_loader', module_data, mode='val')
+    test_data_loader = config.init_obj('train_data_loader', module_data, mode='test')
 
     # build model architecture, then print to console
     model = config.init_obj('arch', module_arch)
