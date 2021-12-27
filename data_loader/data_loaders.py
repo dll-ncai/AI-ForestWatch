@@ -62,6 +62,6 @@ class Landsat8InferenceDataLoader(BaseDataLoader):
                                             image_path=image_path, 
                                             bands=bands, 
                                             stride=model_input_size,
-                                            transformation=transformation)
+                                            transformation=transforms)
         super().__init__(self.dataset, batch_size, False, num_workers)
         
