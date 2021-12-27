@@ -14,7 +14,7 @@ from torch.utils.data import Dataset
 
 np.random.seed(123)
 
-class BaseDataset(Dataset):
+class BaseTrainDataset(Dataset):
     def __init__(self, data_list, data_map_path, stride, model_input_size, bands, num_classes, one_hot,
                  mode='train', transforms=None):
         super(BaseDataset, self).__init__()
