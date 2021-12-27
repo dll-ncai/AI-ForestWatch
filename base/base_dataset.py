@@ -14,7 +14,7 @@ import gdal
 import torch
 from torch.utils.data import Dataset
 
-from dataget import mask_landsat8_image_using_rasterized_shapefile
+from datagen import mask_landsat8_image_using_rasterized_shapefile
 
 np.random.seed(123)
 
