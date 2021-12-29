@@ -48,7 +48,6 @@ class BaseTrainer:
             self._resume_checkpoint(config.resume)
         # pretrained model specified in config.json
         elif 'pretrained_model' in cfg_trainer:
-
             self._resume_checkpoint(cfg_trainer['pretrained_model'])
 
     @abstractmethod
