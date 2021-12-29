@@ -29,7 +29,10 @@ def main(config):
     metric_fns = [getattr(module_metric, met) for met in config['metrics']]
 
     logger.info('Loading checkpoint: {} ...'.format(config.resume))
-    checkpoint = torch.load(config.resume)
+    if config.resume:
+        checkpoint = torch.load(config.resume)
+    else:
+        checkpoint = torch.load(config.trainer.pretrained_model)
     state_dict = checkpoint['state_dict']
     if config['n_gpu'] > 1:
         model = torch.nn.DataParallel(model)
