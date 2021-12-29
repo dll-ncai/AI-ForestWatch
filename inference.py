@@ -35,7 +35,7 @@ def main(config):
     if config.resume:
         checkpoint = torch.load(config.resume)
     else:
-        checkpoint = torch.load(config.trainer.pretrained_model)
+        checkpoint = torch.load(config['trainer'].pretrained_model)
     state_dict = checkpoint['state_dict']
     if config['n_gpu'] > 1:
         model = torch.nn.DataParallel(model)
@@ -51,7 +51,7 @@ def main(config):
     else:
         # get all districts in directory
         all_districts = set()
-        files = os.listdir(config.inference_data_loader.args.data_path)
+        files = os.listdir(config['inference_data_loader'].args.data_path)
         for file in files:
             district = file.split('_')[-1][:-4]
             all_districts.add(district)
