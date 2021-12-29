@@ -15,6 +15,8 @@ import model.metric as module_metric
 import model.model as module_arch
 from parse_config import ConfigParser
 
+FOREST_LABEL, NON_FOREST_LABEL, NULL_LABEL = 2, 1, 0
+
 
 def main(config):
     logger = config.get_logger('test')
