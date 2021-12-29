@@ -47,6 +47,8 @@ if __name__ == '__main__':
                       default=["abbottabad"], help='districts to consider')
     args.add_argument('-y', '--years', nargs='+', default=None, type=int,
                       default=[2016], help='years to consider')
+    args.add_argument('-r', '--resume', default=None, type=str,
+                      help='path to latest checkpoint (default: None)')
 
     config = ConfigParser.from_args(args)
     main(config)
