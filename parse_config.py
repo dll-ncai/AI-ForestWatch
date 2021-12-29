@@ -37,12 +37,14 @@ class ConfigParser:
         self._models_dir = save_dir / 'models' / exper_name / run_id
         self._log_dir = save_dir / 'log' / exper_name / run_id
         self._error_maps_dir = save_dir / 'error_maps' / exper_name / run_id
+        self._inference_dir = save_dir / 'destination' / exper_name / run_id
 
         # make directory for saving checkpoints, log, and error maps.
         exist_ok = run_id == ''
         self.models_dir.mkdir(parents=True, exist_ok=exist_ok)
         self.log_dir.mkdir(parents=True, exist_ok=exist_ok)
         self.error_maps_dir.mkdir(parents=True, exist_ok=exist_ok)
+        self.inference_dir.mkdir(parents=True, exist_ok=exist_ok)
 
         # save updated config file to the checkpoint dir
         write_json(self.config, self.models_dir / 'config.json')
@@ -142,6 +144,10 @@ class ConfigParser:
     @property
     def error_maps_dir(self):
         return self._error_maps_dir
+    
+    @property
+    def inference_dir(self):
+        return self._inference_dir
 
 # helper functions to update config dict with custom cli options
 def _update_config(config, modification):
