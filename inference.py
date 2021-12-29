@@ -98,7 +98,7 @@ def main(config):
             forest_map_gband[generated_map == FOREST_LABEL] = 255
             forest_map_rband[generated_map == NON_FOREST_LABEL] = 255
             forest_map_for_visualization = np.dstack([forest_map_rband, forest_map_gband, forest_map_bband]).astype(np.uint8)
-            save_this_map_path = os.path.join(args.dest, '{}_{}_inferred_map.png'.format(district, year))
+            save_this_map_path = os.path.join(config.inference_dir, '{}_{}_inferred_map.png'.format(district, year))
             matimg.imsave(save_this_map_path, forest_map_for_visualization)
             logger.info('Saved: {} @ {}'.format(save_this_map_path, forest_map_for_visualization.shape))
     
