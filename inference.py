@@ -36,7 +36,7 @@ def main(config):
     state_dict = checkpoint['state_dict']
     if config['n_gpu'] > 1:
         model = torch.nn.DataParallel(model)
-    model.load_state_dict(state_dict)
+    model.load_state_dict(state_dict, strict=False)
 
     # prepare model for testing
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
