@@ -23,9 +23,6 @@ FOREST_LABEL, NON_FOREST_LABEL, NULL_LABEL = 2, 1, 0
 def main(config):
     logger = config.get_logger('test')
 
-    # setup data_loader 
-    # data_loader = config.init_obj('inference_data_loader', module_data)
-
     # build model architecture
     model = config.init_obj('arch', module_arch)
     logger.info(model)
@@ -74,6 +71,7 @@ def main(config):
         for year in years:
             logger.info("On District: {} @ Year: {}".format(district, year))
             image_path = os.path.join(args.data_path, 'landsat8_{}_region_{}.tif'.format(year, district))
+            # setup data_loader
             inference_loader = config.init_obj('inference_data_loader', module_data, image_path)
             adjustment_mask = inference_loader.dataset.adjustment_mask
             # we need to fill our new generated test image
