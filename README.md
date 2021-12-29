@@ -70,7 +70,7 @@ Once you obtain the necessary `.tiff` files, you can use [`get_images_from_large
 Having done so, it is possible to generate training, validation and testing dataloaders. Doing this for the first time may take longer than subsequent attempts. So, it is recommended to initialize [`Landsat8DataLoader`](./data_loader/data_loaders.py#L14) for all three sets of data once before training. 
 
 ## Training
-Training is done using U-Net Topology with VGG11 backbone. A sample [pretrained model](./config.json#L47) that we have trained is used as the default checkpoint. If it is not found, then training will start from scratch unless a checkpoint is provided through command line.
+Training is done using U-Net Topology with VGG11 backbone. A sample [pretrained model](./config.json#L57) that we have trained is used as the default checkpoint. If it is not found, then training will start from scratch unless a checkpoint is provided through command line.
 
 The following command starts training of the model using the options specified in `./config.json`. The optional keyword argument `--config path/to/config.json` can be used to specify another config file to be used.
 
