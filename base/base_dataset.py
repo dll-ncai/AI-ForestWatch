@@ -98,7 +98,7 @@ class BaseTrainDataset(Dataset):
         return 1 * self.total_images if self.mode == 'train' else self.total_images
     
 class BaseInferenceDataset(Dataset):
-    def __init__(self, rasterized_shapefiles_path, image_path, bands, stride, district, transformation):
+    def __init__(self, rasterized_shapefiles_path, image_path, bands, model_input_size, district, num_classes, transformation):
         super(dataset, self).__init__()
         self.model_input_size = model_input_size
         self.image_path = image_path
