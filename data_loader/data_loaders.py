@@ -57,13 +57,15 @@ class Landsat8InferenceDataLoader(BaseDataLoader):
     """
     Dataloader to infer Landsat8 generated pickle data
     """
-    def __init__(self, rasterized_shapefiles_path, district, image_path, model_input_size, bands, num_classes, batch_size, num_workers,
-                transforms=None):
+    def __init__(self, rasterized_shapefiles_path, image_path, bands, model_input_size, district, num_classes,
+                 batch_size, num_workers, transforms=None):
         # create dataset class instances
         self.dataset = BaseInferenceDataset(rasterized_shapefiles_path=rasterized_shapefiles_path,
                                             image_path=image_path, 
                                             bands=bands, 
-                                            stride=model_input_size,
+                                            model_input_size=model_input_size,
+                                            district=district,
+                                            num_classes=num_classes,
                                             transformation=transforms)
         super().__init__(self.dataset, batch_size, False, num_workers)
         
