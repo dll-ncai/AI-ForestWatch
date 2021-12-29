@@ -17,7 +17,7 @@ The aim of this project is to use Landsat-8 imagery to perform forest cover chan
   AI-ForestWatch/
   │
   ├── train.py - main script to start training
-  ├── test.py - evaluation of trained model
+  ├── inference.py - inference using trained model
   │
   ├── config.json - holds configuration for training
   ├── parse_config.py - class to handle config file and cli options
