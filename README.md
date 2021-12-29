@@ -107,7 +107,7 @@ You may use our pretrained model for inference or pass another checkpoint. By de
 
 `python inference.py -d abbotabad battagram -y 2015 2016`  
 
-The output of this script will be saved in `./saved/inference/destination`
+The output of this script will be saved in the most recent experiment folder inside `./saved/inference/`
 
 ## Acknowledgements
 - Part of this research is supported by the German Academic Exchange Service (DAAD) under grant no. 57402923.
