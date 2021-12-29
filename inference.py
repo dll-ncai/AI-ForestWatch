@@ -4,7 +4,9 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+import os
 import argparse
+import numpy as np
 import torch
 from tqdm import tqdm
 import matplotlib.image as matimg
@@ -50,30 +52,40 @@ def main(config):
     if config.districts:
         all_districts = config.districts
     else:
-        # TODO
         # get all districts in directory
+        all_districts = set()
+        files = os.listdir(config.inference_data_loader.args.data_path)
+        for file in files:
+            district = file.split('_')[-1][:-4]
+            all_districts.add(district)
+        all_districts = list(all_districts)
     if config.years:
         years = config.years
     else:
-        # TODO
         # get all years in directory
+        years = set()
+        files = os.listdir(config.inference_data_loader.args.data_path)
+        for file in files:
+            year = int(file.split('_')[1])
+            years.add(year)
+        years = list(years)
         
     for district in all_districts:
         for year in years:
-            print("(LOG): On District: {} @ Year: {}".format(district, year))
-            image_path = os.path.join(args.data_path, 'landsat8_{}_region_{}.tif'.format(year, district)) #added(nauman)
+            logger.info("On District: {} @ Year: {}".format(district, year))
+            image_path = os.path.join(args.data_path, 'landsat8_{}_region_{}.tif'.format(year, district))
             inference_loader = config.init_obj('inference_data_loader', module_data, image_path)
             adjustment_mask = inference_loader.dataset.adjustment_mask
             # we need to fill our new generated test image
             generated_map = np.empty(shape=inference_loader.dataset.get_image_size())
             for idx, data in enumerate(inference_loader):
                 coordinates, test_x = data['coordinates'].tolist(), data['input']
-                test_x = test_x.cuda(device=args.device) if args.cuda else test_x
+                test_x = test_x.to(device)
                 out_x, softmaxed = model.forward(test_x)
                 pred = torch.argmax(softmaxed, dim=1)
                 pred_numpy = pred.cpu().numpy().transpose(1,2,0)
                 if idx % 5 == 0:
-                    print('LOG: on {} of {}'.format(idx, len(inference_loader)))
+                    logger.info('On {} of {}'.format(idx, len(inference_loader)))
                 for k in range(test_x.shape[0]):
                     x, x_, y, y_ = coordinates[k]
                     generated_map[x:x_, y:y_] = pred_numpy[:,:,k]
@@ -89,7 +101,7 @@ def main(config):
             forest_map_for_visualization = np.dstack([forest_map_rband, forest_map_gband, forest_map_bband]).astype(np.uint8)
             save_this_map_path = os.path.join(args.dest, '{}_{}_inferred_map.png'.format(district, year))
             matimg.imsave(save_this_map_path, forest_map_for_visualization)
-            print('Saved: {} @ {}'.format(save_this_map_path, forest_map_for_visualization.shape))
+            logger.info('Saved: {} @ {}'.format(save_this_map_path, forest_map_for_visualization.shape))
     
 
 if __name__ == '__main__':
