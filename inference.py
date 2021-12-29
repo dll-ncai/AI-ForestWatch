@@ -35,7 +35,7 @@ def main(config):
         logger.info('Loading checkpoint: {} ...'.format(config.resume))
         checkpoint = torch.load(config.resume)
     else:
-        logger.info('Loading checkpoint: {} ...'.format(config.resume))
+        logger.info('Loading checkpoint: {} ...'.format(config['trainer']['pretrained_model']))
         checkpoint = torch.load(config['trainer']['pretrained_model'])
     state_dict = checkpoint['state_dict']
     if config['n_gpu'] > 1:
