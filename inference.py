@@ -18,7 +18,7 @@ def main(config):
     logger = config.get_logger('test')
 
     # setup data_loader 
-    data_loader = config.init_obj('inference_data_loader', module_data)
+    # data_loader = config.init_obj('inference_data_loader', module_data)
 
     # build model architecture
     model = config.init_obj('arch', module_arch)
@@ -69,10 +69,10 @@ def main(config):
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='Inference Script')
-    args.add_argument('-d', '--data_path', default=None, type=str,
-                      help='path to images (default in config file)')
-    args.add_argument('-d', '--shapefiles', default=None, type=str,
-                      help='path to shapefiles (default: in config file)')
+    args.add_argument('-d', '--districts', nargs='+', default=None, type=str,
+                      default=["abbottabad"], help='districts to consider')
+    args.add_argument('-y', '--years', nargs='+', default=None, type=int,
+                      default=[2016], help='years to consider')
 
     config = ConfigParser.from_args(args)
     main(config)
