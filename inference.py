@@ -42,6 +42,18 @@ def main(config):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
     model.eval()
+    
+    if config.districts:
+        all_districts = config.districts
+    else:
+        # TODO
+        # get all districts in directory
+    if config.years:
+        years = config.years
+    else:
+        # TODO
+        # get all years in directory
+    
 
 
 if __name__ == '__main__':
