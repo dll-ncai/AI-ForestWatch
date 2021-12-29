@@ -98,62 +98,62 @@ class BaseTrainDataset(Dataset):
         return 1 * self.total_images if self.mode == 'train' else self.total_images
     
 def BaseInferenceDataset(Dataset):
-    def __init__(self, rasterized_shapefiles_path, image_path, bands, stride, transformation):
+    def __init__(self, rasterized_shapefiles_path, image_path, bands, stride, transformation, district):
         super(dataset, self).__init__()
-            self.model_input_size = model_input_size
-            self.image_path = image_path
-            self.all_images = []
-            self.total_images = 0
-            self.stride = stride
-            self.bands = [int(this_band) - 1 for this_band in bands]  # 1-18 -> 0-17
-            self.num_classes = num_classes
-            self.transformation = transformation
-            self.temp_dir = 'temp_numpy_saves'
-            if os.path.exists(self.temp_dir):
-                shutil.rmtree(self.temp_dir)
-            os.mkdir(self.temp_dir)
-            print('LOG: Generating data map now...')
-            image_ds = gdal.Open(image_path, gdal.GA_ReadOnly)
-            all_raster_bands = [image_ds.GetRasterBand(x+1).ReadAsArray() for x in range(image_ds.RasterCount)]
-
-
-            # mask the image and adjust its size at this point
-            test_image, self.adjustment_mask = mask_landsat8_image_using_rasterized_shapefile(rasterized_shapefiles_path=rasterized_shapefiles_path,
-                                                                                              district=district, this_landsat8_bands_list=all_raster_bands)
-            temp_image_path = os.path.join(self.temp_dir, 'temp_image.npy')
-            np.save(temp_image_path, test_image)
-            self.temp_test_image = np.load(temp_image_path, mmap_mode='r')
-            row_limit = self.temp_test_image.shape[0] - model_input_size
-            col_limit = self.temp_test_image.shape[1] - model_input_size
-            test_image, image_ds, all_raster_bands = [None] * 3  # release memory
-            for i in range(0, row_limit+1, self.stride):
-                for j in range(0, col_limit+1, self.stride):
-                    self.all_images.append((i, j))
-                    self.total_images += 1
-            self.shape = [i+self.stride, j+self.stride]
-
-        def __getitem__(self, k):
-            (this_row, this_col) = self.all_images[k]
-            this_example_subset = self.temp_test_image[this_row:this_row + self.model_input_size, this_col:this_col + self.model_input_size, :]
-            # get more indices to add to the example, landsat-8
-            this_example_subset = get_indices(this_example_subset)
-            # at this point, we pick which bands to forward based on command-line argument
-            this_example_subset = this_example_subset[:, :, self.bands]
-            this_example_subset = toTensor(image=this_example_subset)
-            x1, x2 = this_row, this_row + self.model_input_size
-            y1, y2 = this_col, this_col + self.model_input_size
-            return {'coordinates': np.asarray([x1, x2, y1, y2]),
-                    'input': this_example_subset}
-
-        def __len__(self):
-            return self.total_images
-
-        def get_image_size(self):
-            return self.shape
-
-        def clear_mem(self):
+        self.model_input_size = model_input_size
+        self.image_path = image_path
+        self.all_images = []
+        self.total_images = 0
+        self.stride = stride
+        self.bands = [int(this_band) - 1 for this_band in bands]  # 1-18 -> 0-17
+        self.num_classes = num_classes
+        self.transformation = transformation
+        self.temp_dir = 'temp_numpy_saves'
+        if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
-            print('Log: Temporary memory cleared')
+        os.mkdir(self.temp_dir)
+        print('LOG: Generating data map now...')
+        image_ds = gdal.Open(image_path, gdal.GA_ReadOnly)
+        all_raster_bands = [image_ds.GetRasterBand(x+1).ReadAsArray() for x in range(image_ds.RasterCount)]
+
+
+        # mask the image and adjust its size at this point
+        test_image, self.adjustment_mask = mask_landsat8_image_using_rasterized_shapefile(rasterized_shapefiles_path=rasterized_shapefiles_path,
+                                                                                          district=district, this_landsat8_bands_list=all_raster_bands)
+        temp_image_path = os.path.join(self.temp_dir, 'temp_image.npy')
+        np.save(temp_image_path, test_image)
+        self.temp_test_image = np.load(temp_image_path, mmap_mode='r')
+        row_limit = self.temp_test_image.shape[0] - model_input_size
+        col_limit = self.temp_test_image.shape[1] - model_input_size
+        test_image, image_ds, all_raster_bands = [None] * 3  # release memory
+        for i in range(0, row_limit+1, self.stride):
+            for j in range(0, col_limit+1, self.stride):
+                self.all_images.append((i, j))
+                self.total_images += 1
+        self.shape = [i+self.stride, j+self.stride]
+
+    def __getitem__(self, k):
+        (this_row, this_col) = self.all_images[k]
+        this_example_subset = self.temp_test_image[this_row:this_row + self.model_input_size, this_col:this_col + self.model_input_size, :]
+        # get more indices to add to the example, landsat-8
+        this_example_subset = get_indices(this_example_subset)
+        # at this point, we pick which bands to forward based on command-line argument
+        this_example_subset = this_example_subset[:, :, self.bands]
+        this_example_subset = toTensor(image=this_example_subset)
+        x1, x2 = this_row, this_row + self.model_input_size
+        y1, y2 = this_col, this_col + self.model_input_size
+        return {'coordinates': np.asarray([x1, x2, y1, y2]),
+                'input': this_example_subset}
+
+    def __len__(self):
+        return self.total_images
+
+    def get_image_size(self):
+        return self.shape
+
+    def clear_mem(self):
+        shutil.rmtree(self.temp_dir)
+        print('Log: Temporary memory cleared')
 
 def get_indices(arr):
     bands = {
