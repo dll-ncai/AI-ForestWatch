@@ -9,31 +9,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 from osgeo import gdal
+import pickle
 
 def adaptive_resize(array, new_shape):
     # reshape the labels to the size of the image
     single_band = Image.fromarray(array)
     single_band_resized = single_band.resize(new_shape, Image.NEAREST)
     return np.asarray(single_band_resized)
-
-def mask_landsat8_image_using_rasterized_shapefile(rasterized_shapefiles_path, district, this_landsat8_bands_list):
-    this_shapefile_path = os.path.join(rasterized_shapefiles_path, "{}_shapefile.tif".format(district))
-    ds = gdal.Open(this_shapefile_path)
-    assert ds.RasterCount == 1
-    shapefile_mask = np.array(ds.GetRasterBand(1).ReadAsArray(), dtype=np.uint8)
-    clipped_full_spectrum = list()
-    for idx, this_band in enumerate(this_landsat8_bands_list):
-        print("{}: Band-{} Size: {}".format(district, idx, this_band.shape))
-        clipped_full_spectrum.append(np.multiply(this_band, shapefile_mask))
-    x_prev, y_prev = clipped_full_spectrum[0].shape
-    x_fixed, y_fixed = int(128 * np.ceil(x_prev / 128)), int(128 * np.ceil(y_prev / 128))
-    diff_x, diff_y = x_fixed - x_prev, y_fixed - y_prev
-    diff_x_before, diff_y_before = diff_x // 2, diff_y // 2
-    clipped_full_spectrum_resized = [np.pad(x, [(diff_x_before, diff_x - diff_x_before), (diff_y_before, diff_y - diff_y_before)], mode='constant')
-                                     for x in clipped_full_spectrum]
-    print("{}: Generated Image Size: {}".format(district, clipped_full_spectrum_resized[0].shape, len(clipped_full_spectrum_resized)))
-    return clipped_full_spectrum_resized
   
+
+def fix(target_image):
+    # we fix the label by
+    # 1. Converting all NULL (0) pixels to Non-forest pixels (1)
+    target_image[target_image == 0] = 1  # this will convert all null pixels to non-forest pixels
+    # 2. Subtracting 1 from all labels => Non-forest = 0, Forest = 1
+    target_image -= 1
+    return target_image
+
+
 def get_images_from_large_file(data_directory_path, label_directory_path, destination, 
                                bands, year, region, stride):
     image_path = os.path.join(data_directory_path, 'landsat8_{}_region_{}.tif'.format(year,region))
