@@ -5,6 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
+import collections
 import argparse
 import numpy as np
 import torch
@@ -20,7 +21,7 @@ from parse_config import ConfigParser
 FOREST_LABEL, NON_FOREST_LABEL, NULL_LABEL = 2, 1, 0
 
 
-def main(config):
+def main(config, args):
     logger = config.get_logger('test')
 
     # build model architecture
@@ -33,21 +34,21 @@ def main(config):
 
     if config.resume:
         logger.info('Loading checkpoint: {} ...'.format(config.resume))
-        checkpoint = torch.load(config.resume)
+        resume_path = config.resume        
     else:
         logger.info('Loading checkpoint: {} ...'.format(config['trainer']['pretrained_model']))
-        checkpoint = torch.load(config['trainer']['pretrained_model'])
-    state_dict = checkpoint['state_dict']
+        resume_path = config['trainer']['pretrained_model']
+    checkpoint = torch.load(resume_path)
+    model.load_state_dict(torch.load(resume_path), strict=False)
+
     if config['n_gpu'] > 1:
         model = torch.nn.DataParallel(model)
-    model.load_state_dict(state_dict, strict=False)
-
+    
     # prepare model for testing
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
     model.eval()
-    
-    if config.districts:
+    if hasattr(args, "districts"):
         all_districts = config.districts
     else:
         # get all districts in directory
@@ -57,7 +58,7 @@ def main(config):
             district = file.split('_')[-1][:-4]
             all_districts.add(district)
         all_districts = list(all_districts)
-    if config.years:
+    if hasattr(args, "years"):
         years = config.years
     else:
         # get all years in directory
@@ -105,12 +106,18 @@ def main(config):
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='Inference Script')
-    args.add_argument('-d', '--districts', nargs='+', default=None, type=str,
-                      default=["abbottabad"], help='districts to consider')
-    args.add_argument('-y', '--years', nargs='+', default=None, type=int,
-                      default=[2016], help='years to consider')
+    args.add_argument('-c', '--config', default="./config.json", type=str,
+                      help='config file path (default: ./config.json)')
     args.add_argument('-r', '--resume', default=None, type=str,
                       help='path to latest checkpoint (default: None)')
+    args.add_argument('-d', '--device', default=None, type=str,
+                      help='indices of GPUs to enable (default: all)')
+
+
+    args.add_argument('-dst', '--districts', nargs='+', type=str,
+                      default=["abbottabad"], help='districts to consider')
+    args.add_argument('-y', '--years', nargs='+', type=int,
+                      default=[2016], help='years to consider')
 
     config = ConfigParser.from_args(args)
-    main(config)
+    main(config, args)
