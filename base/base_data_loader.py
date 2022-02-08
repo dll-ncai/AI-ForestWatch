@@ -49,7 +49,7 @@ class BaseDataLoader(DataLoader):
         
         
         train_idx = idx_full[0:len_train]
-        evaluation_idx = idx_full[train_split:]
+        evaluation_idx = idx_full[train_idx:]
         valid_idx = evaluation_idx[0:len(evaluation_idx)//2]
         test_idx = evaluation_idx[len(evaluation_idx)//2:]
         
