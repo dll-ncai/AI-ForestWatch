@@ -11,17 +11,17 @@ import shutil
 import numpy as np
 import matplotlib.pyplot as plt
 import gdal
+from PIL import Image
 import torch
 from torch.utils.data import Dataset
 
-from datagen import mask_landsat8_image_using_rasterized_shapefile
 
 np.random.seed(123)
 
 class BaseTrainDataset(Dataset):
     def __init__(self, data_list, data_map_path, stride, model_input_size, bands, num_classes, one_hot,
                  mode='train', transforms=None):
-        super(BaseDataset, self).__init__()
+        super(Dataset, self).__init__()
         self.data_list = data_list
         self.stride = stride
         self.model_input_size = model_input_size
@@ -98,8 +98,8 @@ class BaseTrainDataset(Dataset):
         return 1 * self.total_images if self.mode == 'train' else self.total_images
     
 class BaseInferenceDataset(Dataset):
-    def __init__(self, rasterized_shapefiles_path, image_path, bands, model_input_size, district, num_classes, transformation):
-        super(dataset, self).__init__()
+    def __init__(self, rasterized_shapefiles_path, image_path, stride, bands, model_input_size, district, num_classes, transformation):
+        super(Dataset, self).__init__()
         self.model_input_size = model_input_size
         self.image_path = image_path
         self.all_images = []
@@ -154,6 +154,32 @@ class BaseInferenceDataset(Dataset):
     def clear_mem(self):
         shutil.rmtree(self.temp_dir)
         print('Log: Temporary memory cleared')
+
+
+def adaptive_resize(array, new_shape):
+    # reshape the labels to the size of the image
+    single_band = Image.fromarray(array)
+    single_band_resized = single_band.resize(new_shape, Image.NEAREST)
+    return np.asarray(single_band_resized)
+
+def mask_landsat8_image_using_rasterized_shapefile(rasterized_shapefiles_path, district, this_landsat8_bands_list):
+    this_shapefile_path = os.path.join(rasterized_shapefiles_path, "{}_shapefile.tif".format(district))
+    ds = gdal.Open(this_shapefile_path)
+    assert ds.RasterCount == 1
+    shapefile_mask = np.array(ds.GetRasterBand(1).ReadAsArray(), dtype=np.uint8)
+    clipped_full_spectrum = list()
+    for idx, this_band in enumerate(this_landsat8_bands_list):
+        print("{}: Band-{} Size: {}".format(district, idx, this_band.shape))
+        clipped_full_spectrum.append(np.multiply(this_band, shapefile_mask))
+    x_prev, y_prev = clipped_full_spectrum[0].shape
+    x_fixed, y_fixed = int(128 * np.ceil(x_prev / 128)), int(128 * np.ceil(y_prev / 128))
+    diff_x, diff_y = x_fixed - x_prev, y_fixed - y_prev
+    diff_x_before, diff_y_before = diff_x // 2, diff_y // 2
+    clipped_full_spectrum_resized = [np.pad(x, [(diff_x_before, diff_x - diff_x_before), (diff_y_before, diff_y - diff_y_before)], mode='constant')
+                                     for x in clipped_full_spectrum]
+    print("{}: Generated Image Size: {}".format(district, clipped_full_spectrum_resized[0].shape, len(clipped_full_spectrum_resized)))
+    return clipped_full_spectrum_resized
+
 
 def get_indices(arr):
     bands = {
