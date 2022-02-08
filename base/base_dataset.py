@@ -71,9 +71,9 @@ class BaseTrainDataset(Dataset):
         # at this point, we pick which bands to use
         this_example_subset = this_example_subset[:, :, self.bands]
         this_label_subset = label_subset[this_row:this_row + self.model_input_size, this_col:this_col + self.model_input_size]
+        # Convert NULL-pixels to Non-Forest Class only during training
+        this_label_subset = fix(this_label_subset).astype(np.uint8)
         if self.mode == 'train':
-            # Convert NULL-pixels to Non-Forest Class only during training
-            this_label_subset = fix(this_label_subset).astype(np.uint8)
             # augmentation
             if np.random.randint(0, 2) == 0:
                 this_example_subset = np.fliplr(this_example_subset).copy()
