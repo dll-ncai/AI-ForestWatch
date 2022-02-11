@@ -16,7 +16,7 @@ import torch
 from PIL import Image
 from torch.utils.data import Dataset
 
-from datagen import *
+from base.datagen import *
 
 np.random.seed(123)
 
