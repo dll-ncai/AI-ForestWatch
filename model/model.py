@@ -10,17 +10,16 @@
 
 import torch
 import torch.nn as nn
-from torch.optim import *
-import torch.nn.functional as F
-from torch.nn.utils import clip_grad_norm_
-from torchvision import models
 from base import BaseModel
+from torch.optim import *
+from torchvision import models
 
 
 class UNet_down_block(BaseModel):
     """
         Encoder class
     """
+
     def __init__(self, input_channel, output_channel, conv_1=None, conv_2=None):
         super(UNet_down_block, self).__init__()
         if conv_1:
@@ -29,8 +28,10 @@ class UNet_down_block(BaseModel):
             print('LOG: Using pretrained convolutional layer', conv_2)
         self.input_channels = input_channel
         self.output_channels = output_channel
-        self.conv1 = conv_1 if conv_1 else nn.Conv2d(input_channel, output_channel, kernel_size=3, padding=1)
-        self.conv2 = conv_2 if conv_2 else nn.Conv2d(output_channel, output_channel, kernel_size=3, padding=1)
+        self.conv1 = conv_1 if conv_1 else nn.Conv2d(
+            input_channel, output_channel, kernel_size=3, padding=1)
+        self.conv2 = conv_2 if conv_2 else nn.Conv2d(
+            output_channel, output_channel, kernel_size=3, padding=1)
         self.bn1 = nn.BatchNorm2d(num_features=output_channel)
         self.bn2 = nn.BatchNorm2d(num_features=output_channel)
         self.activate = nn.ReLU()
@@ -45,12 +46,16 @@ class UNet_up_block(BaseModel):
     """
         Decoder class
     """
+
     def __init__(self, prev_channel, input_channel, output_channel):
         super(UNet_up_block, self).__init__()
         self.output_channels = output_channel
-        self.tr_conv_1 = nn.ConvTranspose2d(input_channel, input_channel, kernel_size=2, stride=2)
-        self.conv_1 = nn.Conv2d(prev_channel+input_channel, output_channel, kernel_size=3, stride=1, padding=1)
-        self.conv_2 = nn.Conv2d(output_channel, output_channel, kernel_size=3, stride=1, padding=1)
+        self.tr_conv_1 = nn.ConvTranspose2d(
+            input_channel, input_channel, kernel_size=2, stride=2)
+        self.conv_1 = nn.Conv2d(
+            prev_channel+input_channel, output_channel, kernel_size=3, stride=1, padding=1)
+        self.conv_2 = nn.Conv2d(
+            output_channel, output_channel, kernel_size=3, stride=1, padding=1)
         self.bn1 = nn.BatchNorm2d(num_features=output_channel)
         self.bn2 = nn.BatchNorm2d(num_features=output_channel)
         self.activate = nn.ReLU()
@@ -82,8 +87,10 @@ class UNet(BaseModel):
         self.activate = nn.ReLU()
         self.encoder_1 = UNet_down_block(input_channels, 64)
         self.encoder_2 = UNet_down_block(64, 128, conv_1=pretrained_layers[3])
-        self.encoder_3 = UNet_down_block(128, 256, conv_1=pretrained_layers[6], conv_2=pretrained_layers[8])
-        self.encoder_4 = UNet_down_block(256, 512, conv_1=pretrained_layers[11], conv_2=pretrained_layers[13])
+        self.encoder_3 = UNet_down_block(
+            128, 256, conv_1=pretrained_layers[6], conv_2=pretrained_layers[8])
+        self.encoder_4 = UNet_down_block(
+            256, 512, conv_1=pretrained_layers[11], conv_2=pretrained_layers[13])
         self.mid_conv_64_64_a = nn.Conv2d(64, 64, 3, padding=1)
         self.mid_conv_64_64_b = nn.Conv2d(64, 64, 3, padding=1)
         self.mid_conv_128_128_a = nn.Conv2d(128, 128, 3, padding=1)
@@ -92,15 +99,20 @@ class UNet(BaseModel):
         self.mid_conv_256_256_b = nn.Conv2d(256, 256, 3, padding=1)
         self.mid_conv_512_1024 = nn.Conv2d(512, 1024, 3, padding=1)
         self.mid_conv_1024_1024 = nn.Conv2d(1024, 1024, 3, padding=1)
-        self.decoder_4 = UNet_up_block(prev_channel=self.encoder_4.output_channels, input_channel=self.mid_conv_1024_1024.out_channels, output_channel=256)
-        self.decoder_3 = UNet_up_block(prev_channel=self.encoder_3.output_channels, input_channel=self.decoder_4.output_channels, output_channel=128)
-        self.decoder_2 = UNet_up_block(prev_channel=self.encoder_2.output_channels, input_channel=self.decoder_3.output_channels, output_channel=64)
-        self.decoder_1 = UNet_up_block(prev_channel=self.encoder_1.output_channels, input_channel=self.decoder_2.output_channels, output_channel=64)
+        self.decoder_4 = UNet_up_block(prev_channel=self.encoder_4.output_channels,
+                                       input_channel=self.mid_conv_1024_1024.out_channels, output_channel=256)
+        self.decoder_3 = UNet_up_block(prev_channel=self.encoder_3.output_channels,
+                                       input_channel=self.decoder_4.output_channels, output_channel=128)
+        self.decoder_2 = UNet_up_block(prev_channel=self.encoder_2.output_channels,
+                                       input_channel=self.decoder_3.output_channels, output_channel=64)
+        self.decoder_1 = UNet_up_block(prev_channel=self.encoder_1.output_channels,
+                                       input_channel=self.decoder_2.output_channels, output_channel=64)
         self.binary_last_conv = nn.Conv2d(64, num_classes, kernel_size=1)
         self.softmax = nn.Softmax(dim=1)
         self.forward = self.topologies[topology]
         print('\n\n' + "#" * 100)
-        print("(LOG): The following Model Topology will be Utilized: {}".format(self.forward.__name__))
+        print("(LOG): The following Model Topology will be Utilized: {}".format(
+            self.forward.__name__))
         print("#" * 100 + '\n\n')
 
     def ENC_1_DEC_1(self, x_in):
@@ -178,15 +190,19 @@ class UNet(BaseModel):
         # return the final vector and the corresponding softmax-ed prediction
         return x, self.softmax(x)
 
+
 @torch.no_grad()
 def check_model(topology, input_channels, num_classes, input_shape):
-    model = UNet(topology=topology, input_channels=input_channels, num_classes=num_classes)
+    model = UNet(topology=topology, input_channels=input_channels,
+                 num_classes=num_classes)
     model.eval()
     in_tensor = torch.Tensor(*input_shape)
     with torch.no_grad():
         out_tensor, softmaxed = model(in_tensor)
         print(in_tensor.shape, out_tensor.shape)
 
+
 if __name__ == '__main__':
     # check_model
-    check_model(topology="ENC_1_DEC_1", input_channels=7, num_classes=2, input_shape=[4, 7, 64, 64])
+    check_model(topology="ENC_1_DEC_1", input_channels=7,
+                num_classes=2, input_shape=[4, 7, 64, 64])

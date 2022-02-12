@@ -6,14 +6,10 @@
 
 import os
 import pickle
-import random
 import shutil
 
-import gdal
-import matplotlib.pyplot as plt
 import numpy as np
-import torch
-from PIL import Image
+from osgeo import gdal
 from torch.utils.data import Dataset
 
 from base.datagen import *

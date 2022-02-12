@@ -8,7 +8,6 @@ import os
 import random
 
 from base import BaseDataLoader, BaseInferenceDataset, BaseTrainDataset
-from torchvision import datasets, transforms
 
 random.seed(123)
 

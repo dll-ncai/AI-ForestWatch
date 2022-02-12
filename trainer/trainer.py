@@ -6,16 +6,16 @@
 
 import numpy as np
 import torch
-from torch.nn.utils import clip_grad_norm_
-from torchvision.utils import make_grid
 from base import BaseTrainer
-from utils import inf_loop, MetricTracker
+from torch.nn.utils import clip_grad_norm_
+from utils import MetricTracker, inf_loop
 
 
 class Trainer(BaseTrainer):
     """
     Trainer class
     """
+
     def __init__(self, model, criterion, metric_ftns, optimizer, config, device,
                  data_loader, valid_data_loader=None, test_data_loader=None,
                  lr_scheduler=None, len_epoch=None):
@@ -37,9 +37,12 @@ class Trainer(BaseTrainer):
         self.lr_scheduler = lr_scheduler
         self.log_step = int(np.sqrt(data_loader.batch_size))
 
-        self.train_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns])
-        self.valid_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns])
-        self.test_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns])
+        self.train_metrics = MetricTracker(
+            'loss', *[m.__name__ for m in self.metric_ftns])
+        self.valid_metrics = MetricTracker(
+            'loss', *[m.__name__ for m in self.metric_ftns])
+        self.test_metrics = MetricTracker(
+            'loss', *[m.__name__ for m in self.metric_ftns])
 
     def _train_epoch(self, epoch):
         """
@@ -65,7 +68,8 @@ class Trainer(BaseTrainer):
 
             self.train_metrics.update('loss', loss.item())
             for met in self.metric_ftns:
-                self.train_metrics.update(met.__name__, met(logits, not_one_hot_target))
+                self.train_metrics.update(
+                    met.__name__, met(logits, not_one_hot_target))
 
             if batch_idx % self.log_step == 0:
                 self.logger.debug('Train Epoch: {} {} Loss: {:.6f}'.format(
@@ -79,10 +83,10 @@ class Trainer(BaseTrainer):
 
         if self.do_validation:
             val_log = self._valid_epoch()
-            log.update(**{'val_'+k : v for k, v in val_log.items()})
+            log.update(**{'val_'+k: v for k, v in val_log.items()})
         if self.do_test and epoch == self.config['trainer']['epochs']:
             test_log = self._test_epoch()
-            log.update(**{'test_'+k : v for k, v in test_log.items()})
+            log.update(**{'test_'+k: v for k, v in test_log.items()})
 
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
@@ -108,9 +112,10 @@ class Trainer(BaseTrainer):
 
                 self.valid_metrics.update('loss', loss.item())
                 for met in self.metric_ftns:
-                    self.valid_metrics.update(met.__name__, met(logits, not_one_hot_target))
+                    self.valid_metrics.update(
+                        met.__name__, met(logits, not_one_hot_target))
         return self.valid_metrics.result()
-    
+
     def _test_epoch(self):
         """
         Test after training
@@ -131,9 +136,9 @@ class Trainer(BaseTrainer):
 
                 self.test_metrics.update('loss', loss.item())
                 for met in self.metric_ftns:
-                    self.test_metrics.update(met.__name__, met(logits, not_one_hot_target))
+                    self.test_metrics.update(
+                        met.__name__, met(logits, not_one_hot_target))
         return self.test_metrics.result()
-    
 
     def _progress(self, batch_idx):
         base = '[{}/{} ({:.0f}%)]'
