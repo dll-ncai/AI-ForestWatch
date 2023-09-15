@@ -86,6 +86,7 @@ You can resume from a previously saved checkpoint by:
   ```
   python train.py --resume path/to/checkpoint
   ```
+
   
 #### Optional Keywords
 
@@ -114,6 +115,7 @@ The output of this script will be saved in the most recent experiment folder ins
 ## Acknowledgements
 - Part of this research is supported by the German Academic Exchange Service (DAAD) under grant no. 57402923.
 - This project has followed the PyTorch template provided by [victoresque](https://github.com/victoresque/pytorch-template)
+
  
  ## Reference 
 
