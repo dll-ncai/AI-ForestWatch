@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Technische Universität Kaiserslautern (TUK) & National University of Sciences and Technology (NUST).
+# Copyright (c) 2023, Technische Universität Kaiserslautern (TUK) & National University of Sciences and Technology (NUST).
 # All rights reserved.
 
 # This source code is licensed under the MIT license found in the
@@ -46,13 +46,13 @@ class BaseDataLoader(DataLoader):
             len_train = split
         else:
             len_train = int(self.n_samples * split)
-        
-        
+
+
         train_idx = idx_full[0:len_train]
         evaluation_idx = idx_full[train_idx:]
         valid_idx = evaluation_idx[0:len(evaluation_idx)//2]
         test_idx = evaluation_idx[len(evaluation_idx)//2:]
-        
+
         train_sampler = SubsetRandomSampler(train_idx)
         valid_sampler = SubsetRandomSampler(valid_idx)
         test_sampler = SubsetRandomSampler(test_idx)
@@ -68,7 +68,7 @@ class BaseDataLoader(DataLoader):
             return None
         else:
             return DataLoader(sampler=self.valid_sampler, **self.init_kwargs)
-        
+
     def split_test(self):
         if self.test_sampler is None:
             return None

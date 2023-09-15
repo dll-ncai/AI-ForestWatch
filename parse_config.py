@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Technische Universität Kaiserslautern (TUK) & National University of Sciences and Technology (NUST).
+# Copyright (c) 2023, Technische Universität Kaiserslautern (TUK) & National University of Sciences and Technology (NUST).
 # All rights reserved.
 
 # This source code is licensed under the MIT license found in the
@@ -77,7 +77,7 @@ class ConfigParser:
             assert args.config is not None, msg_no_cfg
             resume = None
             cfg_fname = Path(args.config)
-        
+
         config = read_json(cfg_fname)
         if args.config and resume:
             # update new config for fine-tuning
@@ -140,11 +140,11 @@ class ConfigParser:
     @property
     def log_dir(self):
         return self._log_dir
-    
+
     @property
     def error_maps_dir(self):
         return self._error_maps_dir
-    
+
     @property
     def inference_dir(self):
         return self._inference_dir

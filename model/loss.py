@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Technische Universität Kaiserslautern (TUK) & National University of Sciences and Technology (NUST).
+# Copyright (c) 2023, Technische Universität Kaiserslautern (TUK) & National University of Sciences and Technology (NUST).
 # All rights reserved.
 
 # This source code is licensed under the MIT license found in the
@@ -30,7 +30,7 @@ def check_focal_loss2d():
     target = torch.LongTensor(target_np)
     loss_val = focal_loss2d(logits, target, weight=weights)
     print("Focalloss2d: ", loss_val.item())
-    
+
 def focal_loss2d(output, target, weights=None):
     if not weights:
         weights = torch.Tensor([10, 10])
