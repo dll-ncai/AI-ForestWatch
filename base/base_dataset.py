@@ -100,7 +100,7 @@ class BaseTrainDataset(Dataset):
         return this_example_subset, this_label_subset
 
     def __len__(self):
-        return 1 * self.total_images if self.mode == 'train' else self.total_images
+        return self.total_images
 
 
 class BaseInferenceDataset(Dataset):
