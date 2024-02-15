@@ -25,7 +25,7 @@ class BaseTrainDataset(Dataset):
         self.stride = stride
         self.model_input_size = model_input_size
         self.bands = [x-1 for x in bands]
-        self.num_classes = num_classes
+        self.num_classes = num_classes if mode == 'train' else num_classes + 1
         self.one_hot = one_hot
 
         self.transforms = transforms
@@ -76,9 +76,9 @@ class BaseTrainDataset(Dataset):
         this_example_subset = this_example_subset[:, :, self.bands]
         this_label_subset = label_subset[this_row:this_row +
                                          self.model_input_size, this_col:this_col + self.model_input_size]
-        # Convert NULL-pixels to Non-Forest Class only during training
-        this_label_subset = fix(this_label_subset).astype(np.uint8)
         if self.mode == 'train':
+            # Convert NULL-pixels to Non-Forest Class only during training
+            this_label_subset = fix(this_label_subset).astype(np.uint8)
             # augmentation
             if np.random.randint(0, 2) == 0:
                 this_example_subset = np.fliplr(this_example_subset).copy()
@@ -92,14 +92,12 @@ class BaseTrainDataset(Dataset):
             if np.random.randint(0, 2) == 0:
                 this_example_subset = np.flipud(this_example_subset).copy()
                 this_label_subset = np.flipud(this_label_subset).copy()
-        if self.one_hot:
-            this_label_subset = np.eye(self.num_classes)[
-                this_label_subset.astype(int)]
-        this_example_subset, this_label_subset = toTensor(
-            image=this_example_subset, label=this_label_subset, one_hot=self.one_hot)
+
+        this_label_subset = this_label_subset.astype(int)
         if self.transforms:
             this_example_subset = self.transforms(this_example_subset)
-        return {'input': this_example_subset, 'label': this_label_subset, 'sample_identifier': (example_path, this_row, this_col)}
+            this_label_subset = self.transforms(this_label_subset)
+        return this_example_subset, this_label_subset
 
     def __len__(self):
         return 1 * self.total_images if self.mode == 'train' else self.total_images

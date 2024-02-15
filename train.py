@@ -60,7 +60,12 @@ def main(config):
                       test_data_loader=test_data_loader,
                       lr_scheduler=lr_scheduler)
 
-    trainer.train()
+    if config['trainer']['mode'] == 'train':
+        trainer.train()
+    else:
+        log = trainer._test_epoch()
+        for key, value in log.items():
+            logger.info('    {:15s}: {}'.format(str(key), value))
 
 
 if __name__ == '__main__':

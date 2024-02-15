@@ -9,6 +9,7 @@ import torch
 from base import BaseTrainer
 from torch.nn.utils import clip_grad_norm_
 from utils import MetricTracker, inf_loop
+from sklearn.metrics import classification_report
 
 
 class Trainer(BaseTrainer):
@@ -51,17 +52,21 @@ class Trainer(BaseTrainer):
         :param epoch: Integer, current training epoch.
         :return: A log that contains average loss and metric in this epoch.
         """
+        preds = np.array([])
+        targets = np.array([])
+
         self.model.train()
         self.train_metrics.reset()
-        for batch_idx, item in enumerate(self.data_loader):
-            data, target = item['input'], item['label']
+        for batch_idx, (data, target) in enumerate(self.data_loader):
             data, target = data.to(self.device), target.to(self.device)
 
             self.optimizer.zero_grad()
-            out_x, logits = self.model(data)
-            pred = torch.argmax(logits, dim=1)
-            not_one_hot_target = torch.argmax(target, dim=1)
-            loss = self.criterion(logits, not_one_hot_target)
+            out_x, softmaxed = self.model(data)
+            pred = torch.argmax(softmaxed, dim=1)
+            loss_target = target.clone()
+            loss_target[loss_target != 0] -= 1
+            loss_target = loss_target.squeeze(1)
+            loss = self.criterion(softmaxed, loss_target)
             loss.backward()
             clip_grad_norm_(self.model.parameters(), 0.05)
             self.optimizer.step()
@@ -69,7 +74,13 @@ class Trainer(BaseTrainer):
             self.train_metrics.update('loss', loss.item())
             for met in self.metric_ftns:
                 self.train_metrics.update(
-                    met.__name__, met(logits, not_one_hot_target))
+                    met.__name__, met(softmaxed, loss_target))
+
+            label_valid_indices = (target.view(-1) != 0)
+            valid_pred = pred.view(-1)[label_valid_indices]
+            valid_label = target.view(-1)[label_valid_indices] - 1
+            preds = np.concatenate((preds, valid_pred.view(-1).cpu()), axis=0)
+            targets = np.concatenate((targets, valid_label.view(-1).cpu()), axis=0)
 
             if batch_idx % self.log_step == 0:
                 self.logger.debug('Train Epoch: {} {} Loss: {:.6f}'.format(
@@ -80,11 +91,15 @@ class Trainer(BaseTrainer):
             if batch_idx == self.len_epoch:
                 break
         log = self.train_metrics.result()
+        log['classification_report'] = "\n" + classification_report(targets, preds, target_names=('Non-Forest', 'Forest'))
 
         if self.do_validation:
             val_log = self._valid_epoch()
             log.update(**{'val_'+k: v for k, v in val_log.items()})
         if self.do_test and epoch == self.config['trainer']['epochs']:
+            best_path = str(self.checkpoint_dir / 'model_best.pth')
+            self._resume_checkpoint(best_path)
+            self.logger.info("Testing current best: model_best.pth ...")
             test_log = self._test_epoch()
             log.update(**{'test_'+k: v for k, v in test_log.items()})
 
@@ -98,23 +113,35 @@ class Trainer(BaseTrainer):
 
         :return: A log that contains information about validation
         """
+        preds = np.array([])
+        targets = np.array([])
+
         self.model.eval()
         self.valid_metrics.reset()
         with torch.no_grad():
-            for batch_idx, item in enumerate(self.valid_data_loader):
-                data, target = item['input'], item['label']
+            for batch_idx, (data, target) in enumerate(self.valid_data_loader):
                 data, target = data.to(self.device), target.to(self.device)
 
-                out_x, logits = self.model(data)
-                pred = torch.argmax(logits, dim=1)
-                not_one_hot_target = torch.argmax(target, dim=1)
-                loss = self.criterion(logits, not_one_hot_target)
+                out_x, softmaxed = self.model(data)
+                pred = torch.argmax(softmaxed, dim=1)
+                loss_target = target.clone()
+                loss_target[loss_target != 0] -= 1
+                loss_target = loss_target.squeeze(1)
+                loss = self.criterion(softmaxed, loss_target)
 
                 self.valid_metrics.update('loss', loss.item())
                 for met in self.metric_ftns:
                     self.valid_metrics.update(
-                        met.__name__, met(logits, not_one_hot_target))
-        return self.valid_metrics.result()
+                        met.__name__, met(softmaxed, loss_target))
+
+                label_valid_indices = (target.view(-1) != 0)
+                valid_pred = pred.view(-1)[label_valid_indices]
+                valid_label = target.view(-1)[label_valid_indices] - 1
+                preds = np.concatenate((preds, valid_pred.view(-1).cpu()), axis=0)
+                targets = np.concatenate((targets, valid_label.view(-1).cpu()), axis=0)
+        log = self.valid_metrics.result()
+        log['classification_report'] = "\n" + classification_report(targets, preds, target_names=('Non-Forest', 'Forest'))
+        return log
 
     def _test_epoch(self):
         """
@@ -122,23 +149,35 @@ class Trainer(BaseTrainer):
 
         :return: A log that contains information about testing
         """
+        preds = np.array([])
+        targets = np.array([])
+
         self.model.eval()
         self.test_metrics.reset()
         with torch.no_grad():
-            for batch_idx, item in enumerate(self.test_data_loader):
-                data, target = item['input'], item['label']
+            for batch_idx, (data, target) in enumerate(self.test_data_loader):
                 data, target = data.to(self.device), target.to(self.device)
 
-                out_x, logits = self.model(data)
-                pred = torch.argmax(logits, dim=1)
-                not_one_hot_target = torch.argmax(target, dim=1)
-                loss = self.criterion(logits, not_one_hot_target)
+                out_x, softmaxed = self.model(data)
+                pred = torch.argmax(softmaxed, dim=1)
+                loss_target = target.clone()
+                loss_target[loss_target != 0] -= 1
+                loss_target = loss_target.squeeze(1)
+                loss = self.criterion(softmaxed, loss_target)
 
                 self.test_metrics.update('loss', loss.item())
                 for met in self.metric_ftns:
                     self.test_metrics.update(
-                        met.__name__, met(logits, not_one_hot_target))
-        return self.test_metrics.result()
+                        met.__name__, met(softmaxed, loss_target))
+
+                label_valid_indices = (target.view(-1) != 0)
+                valid_pred = pred.view(-1)[label_valid_indices]
+                valid_label = target.view(-1)[label_valid_indices] - 1
+                preds = np.concatenate((preds, valid_pred.view(-1).cpu()), axis=0)
+                targets = np.concatenate((targets, valid_label.view(-1).cpu()), axis=0)
+        log = self.test_metrics.result()
+        log['classification_report'] = "\n" + classification_report(targets, preds, target_names=('Non-Forest', 'Forest'))
+        return log
 
     def _progress(self, batch_idx):
         base = '[{}/{} ({:.0f}%)]'

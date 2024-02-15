@@ -6,6 +6,7 @@
 
 import os
 import random
+from torchvision import transforms
 
 from base import BaseDataLoader, BaseInferenceDataset, BaseTrainDataset
 
@@ -18,7 +19,7 @@ class Landsat8TrainDataLoader(BaseDataLoader):
     """
 
     def __init__(self, data_dir, data_split_lists_path, batch_size, model_input_size, bands, num_classes, one_hot,
-                 train_split=0.8, mode='train', num_workers=4, transforms=None):
+                 train_split=0.8, mode='train', num_workers=4):
 
         assert mode in (
             'train', 'val', 'test'), "Invalid value for train/val/test mode"
@@ -48,15 +49,19 @@ class Landsat8TrainDataLoader(BaseDataLoader):
         data_map_path = os.path.join(
             data_split_lists_path, f'{mode}_datamap.pkl')
 
+
+        trsfm = transforms.Compose([
+            transforms.ToTensor(),
+        ])
         if mode == 'train':
             self.dataset = BaseTrainDataset(data_list, data_map_path, 8, model_input_size,
                                             bands, num_classes, one_hot,
-                                            transforms=transforms)
+                                            transforms=trsfm)
             super().__init__(self.dataset, batch_size, True, num_workers)
         else:
             self.dataset = BaseTrainDataset(data_list, data_map_path, model_input_size, model_input_size,
                                             bands, num_classes, one_hot,
-                                            mode='test', transforms=transforms)
+                                            mode='test', transforms=trsfm)
             super().__init__(self.dataset, batch_size, False, num_workers)
 
 
