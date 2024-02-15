@@ -63,9 +63,9 @@ def main(config):
     if config['trainer']['mode'] == 'train':
         trainer.train()
     else:
-        log = trainer._test_epoch()
+        log = trainer._valid_epoch(test_data_loader)
         for key, value in log.items():
-            logger.info('    {:15s}: {}'.format(str(key), value))
+            logger.info('    test_{:15s}: {}'.format(str(key), value))
 
 
 if __name__ == '__main__':

@@ -42,8 +42,6 @@ class Trainer(BaseTrainer):
             'loss', *[m.__name__ for m in self.metric_ftns])
         self.valid_metrics = MetricTracker(
             'loss', *[m.__name__ for m in self.metric_ftns])
-        self.test_metrics = MetricTracker(
-            'loss', *[m.__name__ for m in self.metric_ftns])
 
     def _train_epoch(self, epoch):
         """
@@ -94,20 +92,20 @@ class Trainer(BaseTrainer):
         log['classification_report'] = "\n" + classification_report(targets, preds, target_names=('Non-Forest', 'Forest'))
 
         if self.do_validation:
-            val_log = self._valid_epoch()
+            val_log = self._valid_epoch(self.valid_data_loader)
             log.update(**{'val_'+k: v for k, v in val_log.items()})
         if self.do_test and epoch == self.config['trainer']['epochs']:
             best_path = str(self.checkpoint_dir / 'model_best.pth')
             self._resume_checkpoint(best_path)
             self.logger.info("Testing current best: model_best.pth ...")
-            test_log = self._test_epoch()
+            test_log = self._valid_epoch(self.test_data_loader)
             log.update(**{'test_'+k: v for k, v in test_log.items()})
 
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
         return log
 
-    def _valid_epoch(self):
+    def _valid_epoch(self, data_loader):
         """
         Validate after training an epoch
 
@@ -119,7 +117,7 @@ class Trainer(BaseTrainer):
         self.model.eval()
         self.valid_metrics.reset()
         with torch.no_grad():
-            for batch_idx, (data, target) in enumerate(self.valid_data_loader):
+            for batch_idx, (data, target) in enumerate(data_loader):
                 data, target = data.to(self.device), target.to(self.device)
 
                 out_x, softmaxed = self.model(data)
@@ -140,42 +138,6 @@ class Trainer(BaseTrainer):
                 preds = np.concatenate((preds, valid_pred.view(-1).cpu()), axis=0)
                 targets = np.concatenate((targets, valid_label.view(-1).cpu()), axis=0)
         log = self.valid_metrics.result()
-        log['classification_report'] = "\n" + classification_report(targets, preds, target_names=('Non-Forest', 'Forest'))
-        return log
-
-    def _test_epoch(self):
-        """
-        Test after training
-
-        :return: A log that contains information about testing
-        """
-        preds = np.array([])
-        targets = np.array([])
-
-        self.model.eval()
-        self.test_metrics.reset()
-        with torch.no_grad():
-            for batch_idx, (data, target) in enumerate(self.test_data_loader):
-                data, target = data.to(self.device), target.to(self.device)
-
-                out_x, softmaxed = self.model(data)
-                pred = torch.argmax(softmaxed, dim=1)
-                loss_target = target.clone()
-                loss_target[loss_target != 0] -= 1
-                loss_target = loss_target.squeeze(1)
-                loss = self.criterion(softmaxed, loss_target)
-
-                self.test_metrics.update('loss', loss.item())
-                for met in self.metric_ftns:
-                    self.test_metrics.update(
-                        met.__name__, met(softmaxed, loss_target))
-
-                label_valid_indices = (target.view(-1) != 0)
-                valid_pred = pred.view(-1)[label_valid_indices]
-                valid_label = target.view(-1)[label_valid_indices] - 1
-                preds = np.concatenate((preds, valid_pred.view(-1).cpu()), axis=0)
-                targets = np.concatenate((targets, valid_label.view(-1).cpu()), axis=0)
-        log = self.test_metrics.result()
         log['classification_report'] = "\n" + classification_report(targets, preds, target_names=('Non-Forest', 'Forest'))
         return log
 
