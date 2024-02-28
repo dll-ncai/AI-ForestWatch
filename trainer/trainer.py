@@ -50,9 +50,6 @@ class Trainer(BaseTrainer):
         :param epoch: Integer, current training epoch.
         :return: A log that contains average loss and metric in this epoch.
         """
-        preds = np.array([])
-        targets = np.array([])
-
         self.model.train()
         self.train_metrics.reset()
         for batch_idx, (data, target) in enumerate(self.data_loader):
@@ -74,12 +71,6 @@ class Trainer(BaseTrainer):
                 self.train_metrics.update(
                     met.__name__, met(softmaxed, loss_target))
 
-            label_valid_indices = (target.view(-1) != 0)
-            valid_pred = pred.view(-1)[label_valid_indices]
-            valid_label = target.view(-1)[label_valid_indices] - 1
-            preds = np.concatenate((preds, valid_pred.view(-1).cpu()), axis=0)
-            targets = np.concatenate((targets, valid_label.view(-1).cpu()), axis=0)
-
             if batch_idx % self.log_step == 0:
                 self.logger.debug('Train Epoch: {} {} Loss: {:.6f}'.format(
                     epoch,
@@ -89,7 +80,6 @@ class Trainer(BaseTrainer):
             if batch_idx == self.len_epoch:
                 break
         log = self.train_metrics.result()
-        log['classification_report'] = "\n" + classification_report(targets, preds, target_names=('Non-Forest', 'Forest'))
 
         if self.do_validation:
             val_log = self._valid_epoch(self.valid_data_loader)
