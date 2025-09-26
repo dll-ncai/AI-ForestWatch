@@ -204,6 +204,108 @@ class SegFormerB5(BaseModel):
         return x, self.softmax(x)
 
 
+class UNet3Plus(BaseModel):
+    """
+    UNet 3+ variant using the same VGG11-pretrained encoder blocks as UNet for fair comparison.
+    This implementation performs full-scale skip aggregation at the highest resolution (level 1).
+
+    Encoder: identical to UNet encoders (with VGG11 seeded layers where applicable)
+    Decoder: aggregates multi-scale features (x1, x2, x3, x4, x_mid) to level-1 resolution
+    Output: returns (logits, softmax(logits)) to match existing training loop
+    """
+
+    def __init__(self, input_channels: int, num_classes: int):
+        super(UNet3Plus, self).__init__()
+        vgg_trained = models.vgg11(pretrained=True)
+        pretrained_layers = list(vgg_trained.features)
+
+        # encoder (reuse same as UNet for apples-to-apples comparison)
+        self.max_pool = nn.MaxPool2d(2, 2)
+        self.dropout = nn.Dropout2d(0.6)
+        self.activate = nn.ReLU()
+
+        self.encoder_1 = UNet_down_block(input_channels, 64)
+        self.encoder_2 = UNet_down_block(64, 128, conv_1=pretrained_layers[3])
+        self.encoder_3 = UNet_down_block(
+            128, 256, conv_1=pretrained_layers[6], conv_2=pretrained_layers[8])
+        self.encoder_4 = UNet_down_block(
+            256, 512, conv_1=pretrained_layers[11], conv_2=pretrained_layers[13])
+
+        # bottleneck as in UNet
+        self.mid_conv_512_1024 = nn.Conv2d(512, 1024, 3, padding=1)
+        self.mid_conv_1024_1024 = nn.Conv2d(1024, 1024, 3, padding=1)
+
+        # channel adjust layers to unify to the same channel width for aggregation
+        agg_channels = 64
+        self.conv_adj_x1 = nn.Conv2d(64, agg_channels, kernel_size=3, padding=1)
+        self.conv_adj_x2 = nn.Conv2d(128, agg_channels, kernel_size=3, padding=1)
+        self.conv_adj_x3 = nn.Conv2d(256, agg_channels, kernel_size=3, padding=1)
+        self.conv_adj_x4 = nn.Conv2d(512, agg_channels, kernel_size=3, padding=1)
+        self.conv_adj_xm = nn.Conv2d(1024, agg_channels, kernel_size=3, padding=1)
+
+        self.bn_adj_x1 = nn.BatchNorm2d(agg_channels)
+        self.bn_adj_x2 = nn.BatchNorm2d(agg_channels)
+        self.bn_adj_x3 = nn.BatchNorm2d(agg_channels)
+        self.bn_adj_x4 = nn.BatchNorm2d(agg_channels)
+        self.bn_adj_xm = nn.BatchNorm2d(agg_channels)
+
+        # fusion after concatenation (5 scales * agg_channels)
+        fusion_in = agg_channels * 5
+        self.fuse_conv1 = nn.Conv2d(fusion_in, 64, kernel_size=3, padding=1)
+        self.fuse_bn1 = nn.BatchNorm2d(64)
+        self.fuse_conv2 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
+        self.fuse_bn2 = nn.BatchNorm2d(64)
+
+        # output
+        self.binary_last_conv = nn.Conv2d(64, num_classes, kernel_size=1)
+        self.softmax = nn.Softmax(dim=1)
+
+        # upsampler
+        self.upsample2 = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False)
+        self.upsample4 = nn.Upsample(scale_factor=4, mode='bilinear', align_corners=False)
+        self.upsample8 = nn.Upsample(scale_factor=8, mode='bilinear', align_corners=False)
+        self.upsample16 = nn.Upsample(scale_factor=16, mode='bilinear', align_corners=False)
+
+    def _act_bn(self, bn_layer, x):
+        return self.activate(bn_layer(x))
+
+    def forward(self, x_in):
+        # encoder pathway
+        x1 = self.encoder_1(x_in)          # C=64, H/1
+        x1_p = self.max_pool(self.dropout(x1))
+
+        x2 = self.encoder_2(x1_p)          # C=128, H/2
+        x2_p = self.max_pool(self.dropout(x2))
+
+        x3 = self.encoder_3(x2_p)          # C=256, H/4
+        x3_p = self.max_pool(x3)           # we drop dropout here to match UNet order above
+
+        x4 = self.encoder_4(x3_p)          # C=512, H/8
+        x4_p = self.max_pool(self.dropout(x4))
+
+        # bottleneck
+        xm = self.activate(self.mid_conv_512_1024(x4_p))
+        xm = self.activate(self.mid_conv_1024_1024(xm))   # C=1024, H/16
+        xm = self.dropout(xm)
+
+        # adjust channels to agg_channels and upsample to level-1 spatial size
+        x1_adj = self._act_bn(self.bn_adj_x1, self.conv_adj_x1(x1))
+        x2_adj = self._act_bn(self.bn_adj_x2, self.conv_adj_x2(self.upsample2(x2)))
+        x3_adj = self._act_bn(self.bn_adj_x3, self.conv_adj_x3(self.upsample4(x3)))
+        x4_adj = self._act_bn(self.bn_adj_x4, self.conv_adj_x4(self.upsample8(x4)))
+        xm_adj = self._act_bn(self.bn_adj_xm, self.conv_adj_xm(self.upsample16(xm)))
+
+        # concatenate full-scale features at level-1 resolution
+        x_cat = torch.cat([x1_adj, x2_adj, x3_adj, x4_adj, xm_adj], dim=1)
+
+        # fuse
+        x = self._act_bn(self.fuse_bn1, self.fuse_conv1(x_cat))
+        x = self._act_bn(self.fuse_bn2, self.fuse_conv2(x))
+
+        # logits and softmax
+        x = self.binary_last_conv(x)
+        return x, self.softmax(x)
+
 @torch.no_grad()
 def check_model(topology, input_channels, num_classes, input_shape):
     model = UNet(topology=topology, input_channels=input_channels,
