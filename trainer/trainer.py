@@ -69,11 +69,31 @@ class Trainer(BaseTrainer):
 
             self.optimizer.zero_grad()
             out_x, softmaxed = self.model(data)
-            pred = torch.argmax(softmaxed, dim=1)
+
+            # Normalize outputs to support deep supervision (list of outputs)
+            # Use highest-resolution output for metrics; average loss over all outputs
+            logits_list = out_x if isinstance(out_x, (list, tuple)) else [out_x]
+            probs_list = softmaxed if isinstance(softmaxed, (list, tuple)) else [softmaxed]
+            main_logits = logits_list[-1]
+            main_probs = probs_list[-1] if len(probs_list) == len(logits_list) else None
+
+            if main_probs is None:
+                main_probs = torch.softmax(main_logits, dim=1)
+
+            pred = torch.argmax(main_probs, dim=1)
             loss_target = target.clone()
             loss_target[loss_target != 0] -= 1
             loss_target = loss_target.squeeze(1)
-            loss = self.criterion(softmaxed, loss_target)
+
+            # Compute loss: for focal_loss2d use logits, otherwise use probs
+            if hasattr(self.criterion, '__name__') and self.criterion.__name__ == 'focal_loss2d':
+                losses = [self.criterion(logit, loss_target) for logit in logits_list]
+            else:
+                # ensure probs_list matches logits_list length
+                if len(probs_list) != len(logits_list):
+                    probs_list = [torch.softmax(l, dim=1) for l in logits_list]
+                losses = [self.criterion(prob, loss_target) for prob in probs_list]
+            loss = sum(losses) / len(losses)
             loss.backward()
             clip_grad_norm_(self.model.parameters(), 0.05)
             self.optimizer.step()
@@ -81,7 +101,7 @@ class Trainer(BaseTrainer):
             self.train_metrics.update('loss', loss.item())
             for met in self.metric_ftns:
                 self.train_metrics.update(
-                    met.__name__, met(softmaxed, loss_target))
+                    met.__name__, met(main_probs, loss_target))
 
             # Update progress bar with current loss
             pbar.set_postfix({'Loss': f'{loss.item():.6f}'})
@@ -137,16 +157,30 @@ class Trainer(BaseTrainer):
                 data, target = data.to(self.device), target.to(self.device)
 
                 out_x, softmaxed = self.model(data)
-                pred = torch.argmax(softmaxed, dim=1)
+
+                logits_list = out_x if isinstance(out_x, (list, tuple)) else [out_x]
+                probs_list = softmaxed if isinstance(softmaxed, (list, tuple)) else [softmaxed]
+                main_logits = logits_list[-1]
+                main_probs = probs_list[-1] if len(probs_list) == len(logits_list) else None
+                if main_probs is None:
+                    main_probs = torch.softmax(main_logits, dim=1)
+
+                pred = torch.argmax(main_probs, dim=1)
                 loss_target = target.clone()
                 loss_target[loss_target != 0] -= 1
                 loss_target = loss_target.squeeze(1)
-                loss = self.criterion(softmaxed, loss_target)
+                if hasattr(self.criterion, '__name__') and self.criterion.__name__ == 'focal_loss2d':
+                    losses = [self.criterion(logit, loss_target) for logit in logits_list]
+                else:
+                    if len(probs_list) != len(logits_list):
+                        probs_list = [torch.softmax(l, dim=1) for l in logits_list]
+                    losses = [self.criterion(prob, loss_target) for prob in probs_list]
+                loss = sum(losses) / len(losses)
 
                 self.valid_metrics.update('loss', loss.item())
                 for met in self.metric_ftns:
                     self.valid_metrics.update(
-                        met.__name__, met(softmaxed, loss_target))
+                        met.__name__, met(main_probs, loss_target))
 
                 # Update progress bar with current loss
                 pbar.set_postfix({'Loss': f'{loss.item():.6f}'})
